@@ -332,7 +332,7 @@
 		at(Item,restaurant),
 		i_am_at(restaurant),
 		duit(X),
-		((Item==makanan),(X<25000)) -> write('Uangnya tidak cukup.'),nl,!.
+		((Item==makanan),(X < 25000)) -> write('Uangnya tidak cukup.'),nl,!.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.
@@ -455,6 +455,9 @@
 		retract(duit(X)),
 		retract(reputasi(Y)),
 		forall(object(O),retract(at(O,Place))),
+		forall(notanswered(Anything),retract(notanswered(Anything))),
+		forall(answered(Something),retract(answered(Something))),
+		forall(bangun(Person),retract(bangun(Person))),
 		assertfile(Str,C),
 		close(Str),
 		write('Game berhasil dimuat.'), nl.
@@ -500,6 +503,9 @@
 		forall((at(Itemq,kamar_eka),object(Itemq)),(write(Str,'at('),write(Str,Itemq),write(Str,',kamar_eka).'),nl(Str))),
 		forall((at(Itemr,kolam),object(Itemr)),(write(Str,'at('),write(Str,Itemr),write(Str,',kolam).'),nl(Str))),
 		forall((at(Items,basement),object(Items)),(write(Str,'at('),write(Str,Items),write(Str,',basement).'),nl(Str))),
+		forall((answered(Something)),(write(Str,'answered('),write(Str,Something),write(Str,').'),nl(Str))),
+		forall((notanswered(Anything)),(write(Str,'notanswered('),write(Str,Anything),write(Str,').'),nl(Str))),
+		forall((bangun(Person),write(Str,'bangun('),write(Str,Person),write(Str,').'),nl(Str))),
 		write(Str,'('),
 		write(Str,'\''),
 		write(Str,'|'),
@@ -544,6 +550,35 @@
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
 		
+	resetitem :-
+		forall((object(Object),at(Object,Place)),retract(at(Object,Place))),
+		assertz(at(kunci_motor,kos)),
+		assertz(at(laptop,kos)),
+		assertz(at(motor,kos)),
+		assertz(at(sabun,minimarket)),
+		assertz(at(obat_tidur,minimarket)),
+		assertz(at(makanan,restaurant)),
+		assertz(at(diary,kamar_eka)),
+		assertz(at(kunci_diary,basement)),
+		assertz(at(depositbox,bank)),
+		assertz(at(kloset,toilet)),
+		assertz(at(air,toilet)),
+		assertz(at(lemari,kamar_eka)),
+		assertz(at(atm,bank)),
+		assertz(at(mobil,gerbang)),
+		assertz(at(bunga,kebun)),
+		assertz(at(makanan_ikan,kolam)),
+		assertz(at(tempat_tidur,kamar_eka)),
+		assertz(at(kompor,dapur)),
+		assertz(at(kulkas,dapur)),
+		assertz(at(penerjemah,kamar_ortu)),
+		assertz(at(bola_tenis,minimarket)),
+		assertz(at(raket,minimarket)),
+		assertz(at(lemari_bekas,gudang)),
+		assertz(at(laci_bekas,gudang)),
+		assertz(at(meja,loteng)),
+		assertz(at(kursi,loteng)).
+		
 	quit :-
 		retract(player(_)),
 		retract(i_am_at(_)),
@@ -551,8 +586,13 @@
 		retract(duit(_)),
 		assertz(duit(1000)),
 		retract(reputasi(_)),
-		assertz(reputasi(0)).
-		
+		assertz(reputasi(0)),
+		resetitem,
+		forall(notanswered(Anything),retract(notanswered(Anything))),
+		forall(answered(Something),retract(answered(Something))),
+		assertz(notanswered(depositbox)),
+		assertz(notanswered(sopir)),
+		assertz(notanswered(tukangkebun)).
 
 /* Rules perinta dibawah start */
 	do(n) :- go(n),!.
@@ -1013,10 +1053,12 @@
 		notanswered(Thing),
 		write('Apa jawabannya ?'),nl,
 		read(Ans),
-		((((Thing==depositbox),(Ans==nothing)) -> ((retract(notanswered(depositbox))),(assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
+		(
+		(((Thing==depositbox),(Ans==nothing)) -> ((retract(notanswered(depositbox))),(assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
 		(((Thing==sopir),(Ans==kemeja)) -> ((retract(notanswered(sopir))),(assertz(answered(sopir))),write('Sopir : Yaa kamu benar! Ini aku berikan uang sebesar 30000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
 		(((Thing==tukangkebun),(Ans==8)) -> ((retract(notanswered(tukangkebun))),(assertz(answered(tukangkebun))),write('Tukang kebun : Wahh sepertinya kamu bener, ini uang buat kamu (10000)'),nl,duit(X),(Y is (X+30000)),retract(duit(X)),assertz(duit(Y))));
-		write('Aku : Aku rasa jawabannya salah...'),nl,!).
+		write('Aku : Aku rasa jawabannya salah...'),nl,!
+		).
 		
 	answer(_) :-
 		write('Kamu tidak bisa menjawab itu disini.'),nl.

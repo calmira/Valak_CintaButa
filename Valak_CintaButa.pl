@@ -268,7 +268,7 @@
 		assertz(duit(Y)),
 		retract(at(Item,minimarket)),
 		assertz(at(Item,in_hand)),
-		write('Kasir : Terima kasih sudah berbelanja, sampai jumpa!'),nl.
+		write('Kasir : Terima kasih sudah berbelanja, sampai jumpa!'),nl,!.
 		
 	buy(Item) :-
 		at(Item,restaurant),
@@ -279,7 +279,7 @@
 		assertz(duit(Y)),
 		retract(at(Item,restaurant)),
 		assertz(at(Item,in_hand)),
-		write('Boss : Makasih .. Makasih.. Sering-sering dateng ya!'),nl.
+		write('Boss : Makasih .. Makasih.. Sering-sering dateng ya!'),nl,!.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.
@@ -315,9 +315,16 @@
 		i_am_at(Place),
 		retract(at(motor,Place)),
 		assertz(at(motor,in_hand)),
-		write('Aku : Sekarang aku bisa mengendarai motor ! BRUMMM BRUMMM'),
-		look,!.
+		write('Aku : Sekarang aku mengendarai motor ! BRUMMM BRUMMM'),nl,!.
+	ride :-
+		\+at(motor,Place),
+		i_am_at(Place),
+		write('Aku : Motorku dimana ya?'),nl,!.
 
+	ride :-
+		\+at(kunci_motor,in_hand),
+		write('Aku : Kunci motorku dimana ya?'),nl,!.
+		
 /* This rule tells how to look about you. */
 	
 	look :-
@@ -362,6 +369,7 @@
 		write('askmoney(Npc).                : meminta uang dari NPC'), nl,
 		write('give(Object,Npc)              : memberikan barang ke NPC'), nl,
 		write('examine(Object).              : memeriksa barang'), nl,
+		write('ride.                         : mengendarai motor'), nl,
 		write('look.                         : melihat sekeliling'), nl,
 		write('wait.                         : menunggu Eka pulang dari berbelanja'), nl,
 		write('instructions.                 : melihat daftar instruksi'), nl,
@@ -483,8 +491,7 @@
 	do(talk(X)):- talk(X),!.
 	do(askmoney(X)):- askmoney(X),!.
 	
-	/*do(buy(X)):- buy(X),!.
-	do(give(X,Y):-give(X,Y),!.*/
+	/*do(give(X,Y):-give(X,Y),!.*/
 	do(examine(X)):- examine(X),!.	
 	do(look) :- look,!.
 	do(instructions) :- instructions,!.

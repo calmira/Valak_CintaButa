@@ -34,9 +34,7 @@
 	path(banda, s, lombok) :-
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(banda, s, lombok).	
 	path(banda, w, aceh).
 	path(restaurant, s, gerbang).
@@ -45,9 +43,7 @@
 	path(kos, e, lombok) :-
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(kos, e, lombok).	
 	path(lombok, n, banda).
 	path(lombok, e, gerbang).
@@ -58,9 +54,7 @@
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(gerbang, w, lombok).	
 	path(dapur, u, loteng).
 	path(dapur, e, kamar_ortu).
@@ -172,6 +166,7 @@
 	ringan(bunga).
 	ringan(makanan_ikan).
 	ringan(penerjemah).
+	ringan(air).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
@@ -188,7 +183,7 @@
 	use(penerjemah) :-
 		\+i_am_at(kolam),
 		at(penerjemah,in_hand),
-		write('Kamu tidak bisa menggunakan itu disini.'),nl.
+		write('Aku tidak bisa menggunakan itu disini.'),nl.
 	use(laptop):-
 		write('Belanja online kini lebih mudah!'), nl,
 		write('...'), nl,
@@ -232,6 +227,12 @@
         write('OK. Aku mengambil '), write(X), write('.'),
         nl, !.
 		
+	take(laptop) :-
+		i_am_at(X),
+		at(laptop,X),
+		write('Ah.. tasku tidak muat kalau harus bawa laptop.'), nl,
+		!.
+	
 	take(X) :-
         i_am_at(Place),
         object(X),
@@ -320,9 +321,16 @@
 		i_am_at(Place),
 		retract(at(motor,Place)),
 		assertz(at(motor,in_hand)),
-		write('Aku : Sekarang aku bisa mengendarai motor ! BRUMMM BRUMMM'),
-		look,!.
+		write('Aku : Sekarang aku mengendarai motor ! BRUMMM BRUMMM'),nl,!.
+	ride :-
+		\+at(motor,Place),
+		i_am_at(Place),
+		write('Aku : Motorku dimana ya?'),nl,!.
 
+	ride :-
+		\+at(kunci_motor,in_hand),
+		write('Aku : Kunci motorku dimana ya?'),nl,!.
+		
 /* This rule tells how to look about you. */
 	
 	look :-
@@ -367,8 +375,9 @@
 		write('askmoney(Npc).                : meminta uang dari NPC'), nl,
 		write('give(Object,Npc)              : memberikan barang ke NPC'), nl,
 		write('examine(Object).              : memeriksa barang'), nl,
+		write('ride.                         : mengendarai motor'), nl,
 		write('look.                         : melihat sekeliling'), nl,
-		write('wait.                         : menunggu Eka pulang dari berbelanja'), nl,
+		write('tunggu.                       : menunggu Eka pulang dari berbelanja'), nl,
 		write('instructions.                 : melihat daftar instruksi'), nl,
 		write('save(Filename).               : menyimpan progress'), nl,
 		write('load(Filename).               : memuat progress'), nl,
@@ -473,6 +482,19 @@
 		(
 			X\==quit -> do(X), (quitgame(true) -> ! ; fail); 
 			write('Udahan dulu ah.'), nl, !).
+			
+/* Akhir game */
+	berhasil :-
+		write('Beruntungnya nasibku.'), nl,
+		write('Game Over.'), nl,
+		retract(quitgame(false)),
+		assertz(quitgame(true)).
+		
+	gagal :-
+		write('Malangnya nasibku.'), nl,
+		write('Game Over.'), nl,
+		retract(quitgame(false)),
+		assertz(quitgame(true)).
 
 /* Rules perinta dibawah start */
 	do(n) :- go(n),!.
@@ -488,11 +510,11 @@
 	do(talk(X)):- talk(X),!.
 	do(askmoney(X)):- askmoney(X),!.
 	
-	/*do(buy(X)):- buy(X),!.
-	do(give(X,Y):-give(X,Y),!.*/
+	/*do(give(X,Y):-give(X,Y),!.*/
 	do(examine(X)):- examine(X),!.	
 	do(look) :- look,!.
 	do(instructions) :- instructions,!.
+	do(tunggu) :- tunggu, !.
 	do(save(File)) :- save(File),!.
 	do(loadfile(File)) :- loadfile(File),!.
 	do(buy(Item)) :- buy(Item),!.
@@ -711,22 +733,127 @@
     examine(kunci_motor) :- 
 		i_am_at(kos),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
-		write('dan sedang satu ruangan dengan motor.'),nl.
+		write('dan masukkan perintah ride ketika sedang seruangan dengan'), nl,
+		write('motor.'),nl.
 	
 	examine(kunci_motor) :- 
 		at(kunci_motor,in_hand),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
-		write('dan sedang satu ruangan dengan motor.'),nl.
+		write('dan masukkan perintah ride ketika sedang seruangan dengan'),nl,
+		write('motor.'),nl.
+		
+	examine(sabun):-
+		i_am_at(minimarket),
+		write('Sabun yang wangi ini seharga 2000'), nl.
+	
+	examine(sabun):-
+		at(sabun, in_hand),
+		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl.
+	
+	examine(obat_tidur):-
+		i_am_at(minimarket),
+		write('Obat tidur cap gajah mabok seharga 5000'), nl.
+		
+	examine(obat_tidur):-
+		at(obat_tidur, in_hand),
+		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl.
+	
+	examine(raket):-
+		i_am_at(minimarket),
+		write('Raket seharga 100000.'), nl.
+	
+	examine(raket):-
+		at(raket, in_hand),
+		write('Raket yenox berkualitas tinggi.'), nl.
+	
+	examine(bola_tenis):-
+		i_am_at(minimarket),
+		write('Bola tenis ini seharga 50000.'), nl.
+	
+	examine(bola_tenis):-
+		at(bola_tenis, in_hand),
+		write('Mainan favorit para anjing.'), nl.
+	
+	examine(kunci_diary):-
+		i_am_at(basement),
+		write('Kunci apa ya ini? Tampak baru dan mengkilap.'), nl.
+	
+	examine(kunci_diary):-
+		at(kunci_diary, in_hand),
+		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl.
+		
+	examine(makanan):-
+		i_am_at(restaurant),
+		write('Makanan ini seharga 25000.'),nl.
+		
+	examine(makanan):-
+		at(makanan,in_hand),
+		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl.
+		
+	examine(bunga) :-
+		i_am_at(kebun),
+		write('Bunga-bunga yang cantik, dibesarkan seperti anak sendiri.'),nl.
+	
+	examine(bunga) :-
+		i_am_at(kebun),
+		write('Setangkai bunga untuk mencerahkan hati orang yang spesial.'),nl.
+	
+	examine(makanan_ikan) :-
+		i_am_at(kolam),
+		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
+		
+	examine(makanan_ikan) :-
+		at(makanan,in_hand),
+		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
+	
+	examine(kloset) :-
+		i_am_at(toilet),
+		write('Wah klosetnya mulus... semulus kulit Eka.'),nl.
+		
+	examine(air) :- 
+		i_am_at(toilet),
+		write('Pompa air sumitshi, air mengalir sampai jauh...'),nl.
+	
+	examine(atm) :-
+		i_am_at(bank),
+		write('Aku bisa mengambil uang disini'),nl.
+		
+	examine(mobil) :-
+		i_am_at(gerbang),
+		write('Sepertinya aku harus mencoba menyetir mobil ini..'),nl.
+		
+	examine(lemari_bekas) :-
+		i_am_at(gudang),
+		write('Hiii seramnya...'),nl.
+	
+	examine(laci_bekas) :-
+		i_am_at(gudang),
+		write('Laci ini sudah lapuk dimakan rayap.'),nl.
 	
 	examine(motor) :-
 		at(motor,Place),
 		i_am_at(Place),
 		write('Motor bebek kesayangan pemberian orang tua.'),nl.
-		
+	
+	examine(motor) :-
+		at(motor, in_hand),
+		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl.
+	
 	examine(depositbox) :-
-		at(depositbox,Place),
-		i_am_at(Place),
-		clue(depositbox),nl.
+		i_am_at(bank),
+		clue(depositbox).
+	
+	examine(lemari) :-
+		i_am_at(kamar_eka),
+		write('Lemari ini hanya berisi baju-baju Eka.'), nl.
+	
+	examine(kursi):-
+		i_am_at(loteng),
+		write('Kalau aku duduk di sini akan hancur kursinya.'), nl.
+		
+	examine(meja):-
+		i_am_at(loteng),
+		write('Meja ini sudah usang. Banyak coretan tip x di atasnya.'), nl.
 	
 	examine(laptop) :-
 		i_am_at(kos),
@@ -761,7 +888,19 @@
         write('Aku tidak melihat itu di sini.'),
         nl.
 		
-/* Rules untuk wait */
+/* Rules untuk tunggu */
+	tunggu :-
+		at(bola_tenis,in_hand),
+		write('Aku memutuskan untuk menunggu kepulangan Eka dengan bola tenis di tanganku.'), nl,
+		write('Aku berhasil memberikan kebahagiaan pada kekasihku!'), nl,
+		berhasil.
+		
+		
+	tunggu :-
+		write('Aku memutuskan menunggu kepulangan Eka setelah semua ini.'), nl,
+		write('Namun ternyata aku gagal memberikan yang terbaik.'), nl,
+		gagal.
+		
 		
 /* Rules untuk clue */
 	clue(sopir) :-

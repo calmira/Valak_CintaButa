@@ -709,10 +709,44 @@
 		i_am_at(minimarket),
 		write('Bola tenis ini seharga 50000.'), nl.
 	
+	examine(bola_tenis):-
+		at(bola_tenis, in_hand),
+		write('Mainan favorit para anjing.'), nl.
+	
+	examine(kunci_diary):-
+		i_am_at(basement),
+		write('Kunci apa ya ini? Tampak baru dan mengkilap.'), nl.
+	
+	examine(kunci_diary):-
+		at(kunci_diary, in_hand),
+		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl.
+		
+	
+		
 	examine(motor) :-
 		at(motor,Place),
 		i_am_at(Place),
 		write('Motor bebek kesayangan pemberian orang tua.'),nl.
+	
+	examine(motor) :-
+		at(motor, in_hand),
+		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl.
+	
+	examine(depositbox) :-
+		i_am_at(bank),
+		clue(depositbox).
+	
+	examine(lemari) :-
+		i_am_at(kamar_eka),
+		write('Lemari ini hanya berisi baju-baju Eka.'), nl.
+	
+	examine(kursi):-
+		i_am_at(loteng),
+		write('Kalau aku duduk di sini akan hancur kursinya.'), nl.
+		
+	examine(meja):-
+		i_am_at(loteng),
+		write('Meja ini sudah usang. Banyak coretan tip x di atasnya.'), nl.
 	
 	examine(laptop) :-
 		i_am_at(kos),

@@ -672,12 +672,42 @@
     examine(kunci_motor) :- 
 		i_am_at(kos),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
-		write('dan sedang satu ruangan dengan motor.'),nl.
+		write('dan masukkan perintah ride ketika sedang seruangan dengan'), nl,
+		write('motor.'),nl.
 	
 	examine(kunci_motor) :- 
 		at(kunci_motor,in_hand),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
-		write('dan sedang satu ruangan dengan motor.'),nl.
+		write('dan masukkan perintah ride ketika sedang seruangan dengan'),nl,
+		write('motor.'),nl.
+		
+	examine(sabun):-
+		i_am_at(minimarket),
+		write('Sabun yang wangi ini seharga 2000'), nl.
+	
+	examine(sabun):-
+		at(sabun, in_hand),
+		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl.
+	
+	examine(obat_tidur):-
+		i_am_at(minimarket),
+		write('Obat tidur cap gajah mabok seharga 5000'), nl.
+		
+	examine(obat_tidur):-
+		at(obat_tidur, in_hand),
+		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl.
+	
+	examine(raket):-
+		i_am_at(minimarket),
+		write('Raket seharga 100000.'), nl.
+	
+	examine(raket):-
+		at(raket, in_hand),
+		write('Raket yenox berkualitas tinggi.'), nl.
+	
+	examine(bola_tenis):-
+		i_am_at(minimarket),
+		write('Bola tenis ini seharga 50000.'), nl.
 	
 	examine(motor) :-
 		at(motor,Place),

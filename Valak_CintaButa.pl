@@ -29,9 +29,7 @@
 	path(banda, s, lombok) :-
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(banda, s, lombok).	
 	path(banda, w, aceh).
 	path(restaurant, s, gerbang).
@@ -40,9 +38,7 @@
 	path(kos, e, lombok) :-
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(kos, e, lombok).	
 	path(lombok, n, banda).
 	path(lombok, e, gerbang).
@@ -53,9 +49,7 @@
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(gerbang, w, lombok).	
 	path(dapur, u, loteng).
 	path(dapur, e, kamar_ortu).
@@ -152,6 +146,10 @@
 	object(penerjemah).		
 	object(bola_tenis).
 	object(raket).
+	object(laci_bekas).
+	object(lemari_bekas).
+	object(meja).
+	object(kursi).
 		
 	ringan(kunci_motor).
 	ringan(sabun).
@@ -311,7 +309,7 @@
 		i_am_at(Place),
 		retract(at(motor,Place)),
 		assertz(at(motor,in_hand)),
-		write('Aku : Sekarang aku bisa mengendarai motor ! BRUMMM BRUMMM'),
+		write('Aku : Sekarang aku bisa mengendarai motor ! BRUMMM BRUMMM'), nl,
 		look,!.
 
 /* This rule tells how to look about you. */
@@ -359,7 +357,7 @@
 		write('give(Object,Npc)              : memberikan barang ke NPC'), nl,
 		write('examine(Object).              : memeriksa barang'), nl,
 		write('look.                         : melihat sekeliling'), nl,
-		write('wait.                         : menunggu Eka pulang dari berbelanja'), nl,
+		write('tunggu.                       : menunggu Eka pulang dari berbelanja'), nl,
 		write('instructions.                 : melihat daftar instruksi'), nl,
 		write('save(Filename).               : menyimpan progress'), nl,
 		write('load(Filename).               : memuat progress'), nl,
@@ -464,6 +462,19 @@
 		(
 			X\==quit -> do(X), (quitgame(true) -> ! ; fail); 
 			write('Udahan dulu ah.'), nl, !).
+			
+/* Akhir game */
+	berhasil :-
+		write('Beruntungnya nasibku.'), nl,
+		write('Game Over.'), nl,
+		retract(quitgame(false)),
+		assertz(quitgame(true)).
+		
+	gagal :-
+		write('Malangnya nasibku.'), nl,
+		write('Game Over.'), nl,
+		retract(quitgame(false)),
+		assertz(quitgame(true)).
 
 /* Rules perinta dibawah start */
 	do(n) :- go(n),!.
@@ -484,6 +495,7 @@
 	do(examine(X)):- examine(X),!.	
 	do(look) :- look,!.
 	do(instructions) :- instructions,!.
+	do(tunggu) :- tunggu, !.
 	do(save(File)) :- save(File),!.
 	do(loadfile(File)) :- loadfile(File),!.
 	do(buy(Item)) :- buy(Item),!.
@@ -747,14 +759,18 @@
         write('Aku tidak melihat itu di sini.'),
         nl.
 		
-/* Rules untuk wait */
-	wait :-
-		in_hand(bola_tenis),
-		quitgame(true).
+/* Rules untuk tunggu */
+	tunggu :-
+		at(bola_tenis,in_hand),
+		write('Aku memutuskan untuk menunggu kepulangan Eka dengan bola tenis di tanganku.'), nl,
+		write('Aku berhasil memberikan kebahagiaan pada kekasihku!'), nl,
+		berhasil.
 		
 		
-	wait :-
-		quitgame(true).
+	tunggu :-
+		write('Aku memutuskan menunggu kepulangan Eka setelah semua ini.'), nl,
+		write('Namun ternyata aku gagal memberikan yang terbaik.'), nl,
+		gagal.
 		
 		
 /* Rules untuk clue */

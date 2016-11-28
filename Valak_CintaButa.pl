@@ -185,7 +185,10 @@
 		i_am_at(kamar_eka),
 		clue(diary).
 	use(mobil) :-
-		write('Supir : HEH! MAU DIBAWA KE MANA MOBIL MAJIKAN SAYA??'), nl.
+		write('Supir : HEH! MAU DIBAWA KE MANA MOBIL MAJIKAN SAYA??'), nl,
+		Z is Y-1,
+		retract(reputasi(Y)),
+		assertz(reputasi(Z)).
 
 	use(kloset) :-
 		write('Fyuh leganya...'), nl.
@@ -199,8 +202,17 @@
 		write('Saldo di akun Anda sudah habis.'),
 		nl, !.
 
-	use(_) :-
+	use(X) :-
+		i_am_at(Y),
+		at(X,Y),
 		write('Barang tersebut tidak bisa digunakan.'), nl.
+		
+	use(X) :-
+		object(X),
+		write('Barang tersebut tidak ada disini.'), nl.
+		
+	use(_) :-
+		write('Barang apa itu?'), nl.
 	
 	
 /* These rules describe how to pick up an object. */

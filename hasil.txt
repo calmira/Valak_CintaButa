@@ -1,12 +1,11 @@
 player(richard).
-i_am_at(bank).
-duit(42000).
+i_am_at(dapur).
+duit(76000).
 reputasi(0).
 at(kunci_motor,in_hand).
 at(atm,bank).
 at(depositbox,bank).
 at(sabun,minimarket).
-at(obat_tidur,minimarket).
 at(bola_tenis,minimarket).
 at(raket,minimarket).
 at(kursi,loteng).
@@ -14,11 +13,11 @@ at(meja,loteng).
 at(lemari_bekas,gudang).
 at(laci_bekas,gudang).
 at(makanan,restaurant).
-at(motor,kos).
 at(laptop,kos).
 at(kompor,dapur).
 at(kulkas,dapur).
 at(mobil,gerbang).
+at(motor,gerbang).
 at(kompor,dapur).
 at(kulkas,dapur).
 at(penerjemah,kamar_ortu).
@@ -31,6 +30,5 @@ at(lemari,kamar_eka).
 at(makanan_ikan,kolam).
 at(kunci_diary,basement).
 answered(depositbox).
-notanswered(sopir).
+answered(sopir).
 notanswered(tukangkebun).
-('|').

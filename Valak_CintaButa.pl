@@ -277,6 +277,15 @@
 		write('Kasir : Terima kasih sudah berbelanja, sampai jumpa!'),nl,!.
 		
 	buy(Item) :-
+		at(Item,minimarket),
+		i_am_at(minimarket),
+		duit(X),
+		((((Item==sabun),(X < 2000)) -> write('Uangnya tidak cukup.'));
+		(((Item==raket),(X < 100000)) -> write('Uangnya tidak cukup.'));
+		(((Item==bola_tenis),(X < 50000)) -> write('Uangnya tidak cukup.'));
+		(((Item==obat_tidur),(X < 5000)) -> write('Uangnya tidak cukup'))),nl,!.
+		
+	buy(Item) :-
 		at(Item,restaurant),
 		i_am_at(restaurant),
 		duit(X),
@@ -286,6 +295,12 @@
 		retract(at(Item,restaurant)),
 		assertz(at(Item,in_hand)),
 		write('Boss : Makasih .. Makasih.. Sering-sering dateng ya!'),nl,!.
+		
+	buy(Item) :-
+		at(Item,restaurant),
+		i_am_at(restaurant),
+		duit(X),
+		((Item==makanan),(X<25000)) -> write('Uangnya tidak cukup.'),nl,!.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.

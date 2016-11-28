@@ -709,6 +709,11 @@
 		at(motor,Place),
 		i_am_at(Place),
 		write('Motor bebek kesayangan pemberian orang tua.'),nl.
+		
+	examine(depositbox) :-
+		at(depositbox,Place),
+		i_am_at(Place),
+		clue(depositbox),nl.
 	
 	examine(laptop) :-
 		i_am_at(kos),
@@ -797,6 +802,6 @@
 		write('Apa jawabannya ?'),nl,
 		read(Ans),
 		((((Something==depositbox),\+(answered(depositbox)),(Ans==nothing)) -> ((assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),Y is X+40000,retract(duit(X)),assertz(duit(Y))));
-		(((Something==sopir),\+(answered(sopir)),(Ans==kemeja)) -> ((assertz(answered(sopir))),write('Sopir : Yaa kamu benar! Ini aku berikan uang sebesar 30000!'),nl,duit(X),Y is X+30000,retract(duit(X)),assertz(duit(Y))));
-		((Something==tukangkebun) -> (Ans==8));
+		(((Something==sopir),\+(answered(sopir)),(Ans==kemeja)) -> ((assertz(answered(sopir))),write('Sopir : Yaa kamu benar! Ini aku berikan uang sebesar 30000!'),nl,duit(X),Y is X+40000,retract(duit(X)),assertz(duit(Y))));
+		(((Something==tukangkebun),\+(answered(tukangkebun)),(Ans==8)) -> ((assertz(answered(tukangkebun))),write('Tukang kebun : Wahh sepertinya kamu bener, ini uang buat kamu (10000)'),nl,duit(X),Y is X+30000,retract(duit(X)),assertz(duit(Y))));
 		write('Aku : Aku rasa jawabannya salah...')),!.

@@ -344,6 +344,7 @@
 		write('give(Object,Npc)              : memberikan barang ke NPC'), nl,
 		write('examine(Object).              : memeriksa barang'), nl,
 		write('look.                         : melihat sekeliling'), nl,
+		write('wait.                         : menunggu Eka pulang dari berbelanja'), nl,
 		write('instructions.                 : melihat daftar instruksi'), nl,
 		write('save(Filename).               : menyimpan progress'), nl,
 		write('load(Filename).               : memuat progress'), nl,
@@ -430,18 +431,16 @@
 /* Starting game */
 	start :-
 		inputnama,
-		write('Selamat datang di game Cinta Buta!'),
-		nl,
-		write('Huft.. Beberapa hari lagi aku dan pacarku, Eka, '), 
-		nl,
-		write('akan merayakan anniv yang ke-5.'),
-		nl,
-		write('Aku ingin memberikan hadiah spesial untuknya pada hari spesial kami'),
-		nl,
-		write('Namun aku merasa bingung apa hadiah yang tepat untuk si dia. :('),
-		nl,
-		write('Apa yang akan aku lakukan?'),
-		nl,
+		write('Selamat datang di game Cinta Buta!'), nl,
+		write('Huft.. Beberapa hari lagi aku dan pacarku, Eka, '), nl,
+		write('akan merayakan anniv yang ke-5.'), nl,
+		write('Kami bersepakat bahwa kami akan melakukan tukar kado.'), nl,
+		write('Namun aku merasa bingung apa hadiah yang tepat untuk si dia. :('), nl,
+		write('Apa yang akan aku lakukan?'), nl,
+		write('Hmm... Seharusnya beberapa saat ke depan Eka tidak berada di rumah untuk mencari hadiah untukku.'), nl,
+		write('Aku bisa masuk ke rumahnya untuk mencari petunjuk.'), nl,
+		write('Aku harus melakukan sesuatu!'), nl,
+		write('Tapi aku harus cepat, sebelum Eka kembali pulang.'), nl,
 		instructions,
 		look,
 		repeat,
@@ -757,6 +756,8 @@
     examine(_) :-
         write('Aku tidak melihat itu di sini.'),
         nl.
+		
+/* Rules untuk wait */
 		
 /* Rules untuk clue */
 	clue(puzz1) :-

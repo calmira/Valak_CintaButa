@@ -148,7 +148,8 @@
 	object(penerjemah).		
 	object(bola_tenis).
 	object(raket).
-		
+	object(lemari_bekas).
+	
 	ringan(kunci_motor).
 	ringan(sabun).
 	ringan(obat_tidur).
@@ -708,6 +709,54 @@
 	examine(bola_tenis):-
 		i_am_at(minimarket),
 		write('Bola tenis ini seharga 50000.'), nl.
+	
+	examine(makanan):-
+		i_am_at(restaurant),
+		write('Makanan ini seharga 25000.'),nl.
+		
+	examine(makanan):-
+		at(makanan,in_hand),
+		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl.
+		
+	examine(bunga) :-
+		i_am_at(kebun),
+		write('Bunga-bunga yang cantik, dibesarkan seperti anak sendiri.'),nl.
+	
+	examine(bunga) :-
+		i_am_at(kebun),
+		write('Setangkai bunga untuk mencerahkan hati orang yang spesial.'),nl.
+	
+	examine(makanan_ikan) :-
+		i_am_at(kolam),
+		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
+		
+	examine(makanan_ikan) :-
+		at(makanan,in_hand),
+		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
+	
+	examine(kloset) :-
+		i_am_at(toilet),
+		write('Wah klosetnya mulus... semulus kulit Eka.'),nl.
+		
+	examine(air) :- 
+		i_am_at(toilet),
+		write('Pompa air sumitshi, air mengalir sampai jauh...'),nl.
+	
+	examine(atm) :-
+		i_am_at(bank),
+		write('Aku bisa mengambil uang disini'),nl.
+		
+	examine(mobil) :-
+		i_am_at(gerbang),
+		write('Sepertinya aku harus mencoba menyetir mobil ini..'),nl.
+		
+	examine(lemari_bekas) :-
+		i_am_at(gudang),
+		write('Hiii seramnya...'),nl.
+	
+	examine(laci_bekas) :-
+		i_am_at(gudang),
+		write('Laci ini sudah lapuk dimakan rayap.'),nl.
 	
 	examine(motor) :-
 		at(motor,Place),

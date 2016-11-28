@@ -839,6 +839,14 @@
         nl.
 		
 /* Rules untuk wait */
+	wait :-
+		in_hand(bola_tenis),
+		quitgame(true).
+		
+		
+	wait :-
+		quitgame(true).
+		
 		
 /* Rules untuk clue */
 	clue(puzz1) :-

@@ -6,12 +6,17 @@
 :- dynamic(reputasi/1).
 :- dynamic(at/2).
 :- dynamic(quitgame/1).
+:- dynamic(answered/1).
+:- dynamic(notanswered/1).
 
 /* current state */
 	i_am_at(kos).
 	quitgame(false).
 	duit(1000).
-	reputasi(0).	
+	reputasi(0).
+	notanswered(depositbox).
+	notanswered(sopir).
+	notanswered(tukangkebun).
 	
 /* connection of places */
 	path(bank, e, minimarket).
@@ -263,7 +268,7 @@
 		at(Item,minimarket),
 		i_am_at(minimarket),
 		duit(X),
-		(((Item == sabun),(X>=2000),(Y is (X-2000)));((X>=100000),(Item==raket),(Y is (X-100000)));((X>=50000),(Item=bola_tenis),(Y is (X-50000)));
+		(((Item==sabun),(X>=2000),(Y is (X-2000)));((X>=100000),(Item==raket),(Y is (X-100000)));((X>=50000),(Item=bola_tenis),(Y is (X-50000)));
 		((Item==obat_tidur),(X>=5000),(Y is (X-5000)))),
 		retract(duit(X)),
 		assertz(duit(Y)),
@@ -525,6 +530,7 @@
 	do(loadfile(File)) :- loadfile(File),!.
 	do(buy(Item)) :- buy(Item),!.
 	do(ride) :- ride,!.
+	do(answer(Something)) :- answer(Something),!.
 	do(_) :- write('Perintah salah.'),nl,fail.
 
 /* Rules yang mendeskripsikan ruangan */
@@ -691,8 +697,11 @@
         npc(X),
         at(X, Place),
 		retract(duit(Y)),
+		retract(reputasi(R)),
 		Z is (Y+100),
+		S is (R-1),
 		assertz(duit(Z)),
+		assertz(reputasi(S)),
 		write(X), write(' : Nih..'), nl,
 		write('Aku : Wah, terimakasih banyak..'),
 		nl, !.
@@ -869,6 +878,7 @@
 	examine(diary) :-
 		i_am_at(kamar_eka),
 		write('Buku harian dengan sebuah lubang kunci.'),nl.
+		
 	examine(penerjemah) :-
 		i_am_at(kamar_ortu),
 		write('Benda ini sepertinya dapat berguna untuk mengartikan perkataan-perkataan yang aneh.'), nl.
@@ -935,7 +945,7 @@
 		
 	clue(diary) :-
 		player(X),
-		write('11 November 2011'),nl,nl,
+		write('12 November 2016'),nl,nl,
 		write('Hari ini seneng bangeeet :D hari ini bisa jalan bareng dia sambil ajak Blacky jalan juga.'),nl,
 		write('Gak nyangka juga sih bisa liat '),write(X),write(' kecebur ke kali karena Blacky HAHAHA'),nl,
 		write('Kasian sihh tapi untung aja gak ada luka juga wkwkwk, seru banget juga tadi Blacky akhirnya dapet temen '),nl,
@@ -948,14 +958,18 @@
 		write('Yaaaa, tapi yang penting aku masih bisa sama Blacky dan '),write(X),write(' udah seneng banget kok :D'),nl,
 		write('OVERALL, THANK GOD, HARI INI AKU SENENGG :D, semoga ada hari lain lagi deh ya kayak hari ini.'),nl.
 		
-	clue(_).
-	
-	answer(Something) :-
+	clue(_) :- write('Tidak ada clue').
+
+	answer(Thing) :-
 		i_am_at(Place),
-		at(Something,Place),
+		at(Thing,Place),
+		notanswered(Thing),
 		write('Apa jawabannya ?'),nl,
 		read(Ans),
-		((((Something==depositbox),\+(answered(depositbox)),(Ans==nothing)) -> ((assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),Y is X+40000,retract(duit(X)),assertz(duit(Y))));
-		(((Something==sopir),\+(answered(sopir)),(Ans==kemeja)) -> ((assertz(answered(sopir))),write('Sopir : Yaa kamu benar! Ini aku berikan uang sebesar 30000!'),nl,duit(X),Y is X+40000,retract(duit(X)),assertz(duit(Y))));
-		(((Something==tukangkebun),\+(answered(tukangkebun)),(Ans==8)) -> ((assertz(answered(tukangkebun))),write('Tukang kebun : Wahh sepertinya kamu bener, ini uang buat kamu (10000)'),nl,duit(X),Y is X+30000,retract(duit(X)),assertz(duit(Y))));
-		write('Aku : Aku rasa jawabannya salah...')),!.
+		((((Thing==depositbox),(Ans==nothing)) -> ((retract(notanswered(depositbox))),(assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
+		(((Thing==sopir),(Ans==kemeja)) -> ((retract(notanswered(sopir))),(assertz(answered(sopir))),write('Sopir : Yaa kamu benar! Ini aku berikan uang sebesar 30000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
+		(((Thing==tukangkebun),(Ans==8)) -> ((retract(notanswered(tukangkebun))),(assertz(answered(tukangkebun))),write('Tukang kebun : Wahh sepertinya kamu bener, ini uang buat kamu (10000)'),nl,duit(X),(Y is (X+30000)),retract(duit(X)),assertz(duit(Y))));
+		write('Aku : Aku rasa jawabannya salah...'),nl,!).
+		
+	answer(_) :-
+		write('Kamu tidak bisa menjawab itu disini.'),nl.

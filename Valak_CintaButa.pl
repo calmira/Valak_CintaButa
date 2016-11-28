@@ -152,6 +152,10 @@
 	object(penerjemah).		
 	object(bola_tenis).
 	object(raket).
+	object(lemari_bekas).
+	object(laci_bekas).
+	object(meja).
+	object(kursi).
 		
 	ringan(kunci_motor).
 	ringan(sabun).
@@ -698,22 +702,127 @@
     examine(kunci_motor) :- 
 		i_am_at(kos),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
-		write('dan sedang satu ruangan dengan motor.'),nl.
+		write('dan masukkan perintah ride ketika sedang seruangan dengan'), nl,
+		write('motor.'),nl.
 	
 	examine(kunci_motor) :- 
 		at(kunci_motor,in_hand),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
-		write('dan sedang satu ruangan dengan motor.'),nl.
+		write('dan masukkan perintah ride ketika sedang seruangan dengan'),nl,
+		write('motor.'),nl.
+		
+	examine(sabun):-
+		i_am_at(minimarket),
+		write('Sabun yang wangi ini seharga 2000'), nl.
+	
+	examine(sabun):-
+		at(sabun, in_hand),
+		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl.
+	
+	examine(obat_tidur):-
+		i_am_at(minimarket),
+		write('Obat tidur cap gajah mabok seharga 5000'), nl.
+		
+	examine(obat_tidur):-
+		at(obat_tidur, in_hand),
+		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl.
+	
+	examine(raket):-
+		i_am_at(minimarket),
+		write('Raket seharga 100000.'), nl.
+	
+	examine(raket):-
+		at(raket, in_hand),
+		write('Raket yenox berkualitas tinggi.'), nl.
+	
+	examine(bola_tenis):-
+		i_am_at(minimarket),
+		write('Bola tenis ini seharga 50000.'), nl.
+	
+	examine(bola_tenis):-
+		at(bola_tenis, in_hand),
+		write('Mainan favorit para anjing.'), nl.
+	
+	examine(kunci_diary):-
+		i_am_at(basement),
+		write('Kunci apa ya ini? Tampak baru dan mengkilap.'), nl.
+	
+	examine(kunci_diary):-
+		at(kunci_diary, in_hand),
+		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl.
+		
+	examine(makanan):-
+		i_am_at(restaurant),
+		write('Makanan ini seharga 25000.'),nl.
+		
+	examine(makanan):-
+		at(makanan,in_hand),
+		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl.
+		
+	examine(bunga) :-
+		i_am_at(kebun),
+		write('Bunga-bunga yang cantik, dibesarkan seperti anak sendiri.'),nl.
+	
+	examine(bunga) :-
+		i_am_at(kebun),
+		write('Setangkai bunga untuk mencerahkan hati orang yang spesial.'),nl.
+	
+	examine(makanan_ikan) :-
+		i_am_at(kolam),
+		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
+		
+	examine(makanan_ikan) :-
+		at(makanan,in_hand),
+		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
+	
+	examine(kloset) :-
+		i_am_at(toilet),
+		write('Wah klosetnya mulus... semulus kulit Eka.'),nl.
+		
+	examine(air) :- 
+		i_am_at(toilet),
+		write('Pompa air sumitshi, air mengalir sampai jauh...'),nl.
+	
+	examine(atm) :-
+		i_am_at(bank),
+		write('Aku bisa mengambil uang disini'),nl.
+		
+	examine(mobil) :-
+		i_am_at(gerbang),
+		write('Sepertinya aku harus mencoba menyetir mobil ini..'),nl.
+		
+	examine(lemari_bekas) :-
+		i_am_at(gudang),
+		write('Hiii seramnya...'),nl.
+	
+	examine(laci_bekas) :-
+		i_am_at(gudang),
+		write('Laci ini sudah lapuk dimakan rayap.'),nl.
 	
 	examine(motor) :-
 		at(motor,Place),
 		i_am_at(Place),
 		write('Motor bebek kesayangan pemberian orang tua.'),nl.
-		
+	
+	examine(motor) :-
+		at(motor, in_hand),
+		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl.
+	
 	examine(depositbox) :-
-		at(depositbox,Place),
-		i_am_at(Place),
-		clue(depositbox),nl.
+		i_am_at(bank),
+		clue(depositbox).
+	
+	examine(lemari) :-
+		i_am_at(kamar_eka),
+		write('Lemari ini hanya berisi baju-baju Eka.'), nl.
+	
+	examine(kursi):-
+		i_am_at(loteng),
+		write('Kalau aku duduk di sini akan hancur kursinya.'), nl.
+		
+	examine(meja):-
+		i_am_at(loteng),
+		write('Meja ini sudah usang. Banyak coretan tip x di atasnya.'), nl.
 	
 	examine(laptop) :-
 		i_am_at(kos),

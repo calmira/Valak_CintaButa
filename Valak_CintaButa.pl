@@ -476,7 +476,8 @@
 		read(X),
 		(
 			X\==quit -> do(X), (quitgame(true) -> ! ; fail); 
-			write('Udahan dulu ah.'), nl, !).
+			write('Udahan dulu ah.'), nl,
+			quit,! ).
 			
 /* Akhir game */
 	berhasil :-
@@ -490,6 +491,16 @@
 		write('Game Over.'), nl,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
+		
+	quit :-
+		retract(player(_)),
+		retract(i_am_at(_)),
+		assertz(i_am_at(kos)),
+		retract(duit(_)),
+		assertz(duit(1000)),
+		retract(reputasi(_)),
+		assertz(reputasi(0)).
+		
 
 /* Rules perinta dibawah start */
 	do(n) :- go(n),!.

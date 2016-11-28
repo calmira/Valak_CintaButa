@@ -20,7 +20,7 @@
 	notanswered(tukangkebun).
 	
 /* Deklarasi tidur */
-	bangun(X):- npc(X).
+	bangun(mama_eka).
 	
 /* connection of places */
 	path(bank, e, minimarket).
@@ -39,58 +39,53 @@
 		at(motor,in_hand),
 		gambar(game_over), nl, nl,
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'), nl,
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(banda, s, lombok).	
 	path(banda, w, aceh).
 	path(restaurant, s, gerbang) :- at(motor, in_hand).
+	path(restaurant, s, gerbang) :- at(motor, gerbang).
 	path(restaurant, s, gerbang) :-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'), nl, fail.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(restaurant, w, banda).
 	path(kos, n, aceh).
 	path(kos, e, lombok) :-
 		at(motor,in_hand),
 		gambar(game_over), nl, nl,
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'), nl,
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(kos, e, lombok).	
 	path(lombok, n, banda).
-	path(lombok, e, gerbang):-at(motor, in_hand).
+	path(lombok, e, gerbang) :- at(motor, in_hand).
+	path(lombok, e, gerbang) :- at(motor, gerbang).
 	path(lombok, e, gerbang):-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'), nl, fail.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(lombok, w, kos).
 	path(gerbang, n, restaurant).
 	path(gerbang, e, dapur) :- \+at(motor,in_hand).
 	path(gerbang, e, dapur) :-
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,!.
 	
 	path(gerbang, s, kebun) :- 	\+at(motor,in_hand).
 	path(gerbang, s, kebun) :- 	
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,!.
 	
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
 		gambar(game_over), nl, nl,
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'), nl,
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(gerbang, w, lombok):-
 		at(motor,in_hand),
 		gambar(game_over), nl, nl,
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'), nl,
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(gerbang, w, lombok).
 	path(dapur, u, loteng).
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, fail.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, !.
+
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
 	path(kamar_ortu, s, kamar_eka).
@@ -104,7 +99,8 @@
 	path(kamar_eka, n, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(kamar_eka, n, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, fail.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, !.
+
 	path(kolam, n, kebun).
 	path(kamar_eka, d, basement).
 	path(basement, u, kamar_eka).
@@ -137,7 +133,7 @@
     at(oma_eka, dapur).
     at(kompor, dapur).
     at(kulkas, dapur).
-    at(mama_eka, kamar_ortu).
+    at(mama_eka, dapur).
     at(penerjemah, kamar_ortu).
     at(tukangkebun, kebun).
     at(bunga, kebun).
@@ -203,6 +199,13 @@
 	ringan(makanan_ikan).
 	ringan(penerjemah).
 	ringan(air).
+	
+/* Harga barang */
+	price(sabun,2000).
+	price(obat_tidur,5000).
+	price(raket,100000).
+	price(bola_tenis,50000).
+	price(makanan,25000).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
@@ -214,12 +217,19 @@
 		i_am_at(kolam),
 		at(penerjemah,in_hand),
 		write('Ikan : Kamu tahu tidak? Eka sekarang sedang butuh uang.'),nl,
-		write('Ah, kamu tidak peka.'),nl.
+		write('Ah, kamu tidak peka.'),nl,!.
+		
+	use(penerjemah) :-
+		i_am_at(gerbang),
+		at(penerjemah,in_hand),
+		write('Anjing : Main lempar bola tenis memang seru yaa!'),nl,!.
 		
 	use(penerjemah) :-
 		\+i_am_at(kolam),
+		\+i_am_at(gerbang),
 		at(penerjemah,in_hand),
-		write('Aku tidak bisa menggunakan itu disini.'),nl.
+		write('Aku tidak bisa menggunakan itu disini.'),nl,!.
+		
 	use(laptop):-
 		write('Belanja online kini lebih mudah!'), nl,
 		write('...'), nl,
@@ -304,8 +314,9 @@
 		at(Item,minimarket),
 		i_am_at(minimarket),
 		duit(X),
-		(((Item==sabun),(X>=2000),(Y is (X-2000)));((X>=100000),(Item==raket),(Y is (X-100000)));((X>=50000),(Item=bola_tenis),(Y is (X-50000)));
-		((Item==obat_tidur),(X>=5000),(Y is (X-5000)))),
+		price(Item,Z),
+		X>=Z,
+		Y is (X-Z),
 		retract(duit(X)),
 		assertz(duit(Y)),
 		retract(at(Item,minimarket)),
@@ -313,15 +324,26 @@
 		write('Kasir : Terima kasih sudah berbelanja, sampai jumpa!'),nl,!.
 		
 	buy(Item) :-
+		at(Item,minimarket),
+		i_am_at(minimarket),
+		write('Uangnya tidak cukup.'), nl,!.
+		
+	buy(Item) :-
 		at(Item,restaurant),
 		i_am_at(restaurant),
 		duit(X),
-		((Item==makanan),(X>=25000),(Y is (X-25000))),
+		price(Item,Z),
+		X>=Z,
+		Y is (X-Z),
 		retract(duit(X)),
 		assertz(duit(Y)),
-		retract(at(Item,restaurant)),
 		assertz(at(Item,in_hand)),
 		write('Boss : Makasih .. Makasih.. Sering-sering dateng ya!'),nl,!.
+		
+	buy(Item) :-
+		at(Item,restaurant),
+		i_am_at(restaurant),
+		write('Uangnya tidak cukup'),nl,!.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.
@@ -339,6 +361,42 @@
         write('Bagaimana aku mau meletakkannya?? Barang tersebut saja tidak kupegang.'),
         nl.
 
+	give(mama_eka,obat_tidur) :-
+		i_am_at(dapur),
+		at(obat_tidur,in_hand),
+		retract(at(obat_tidur,in_hand)),
+		write('Mama Eka : Wah, kamu tahu saja saya tidak bisa tidur dari kemarin.. Terima kasih obat tidurnya.'),nl,
+		write('Mama Eka pun tertidur karena meminum obat tidur yang kamu berikan'), nl,
+		retract(bangun(mama_eka)), !.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		at(Person,Place),
+		\+at(Something,in_hand),
+		write('Aku : Aku tidak punya benda itu sekarang.'),nl,!.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		\+(at(Person,Place)),
+		write('Aku : Orang itu tidak ada di sini sekarang.'),nl,!.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		at(Person,Place),
+		npc(Person),
+		Person \== anjing,
+		Person \== ikan,
+		at(Something,in_hand),
+		write(Person),write(' : Apa ini ? Aku tidak butuh benda ini.'),nl,!.
+		
+	give(anjing,Something) :-
+		i_am_at(gerbang),
+		write('Anjing : Woof woof !'),nl,!.
+		
+	give(ikan,Something) :-
+		i_am_at(kolam),
+		write('Ikan : Blubub blubub blubub'),nl,!.
+		
 /* This rule tells how to move in a given direction. */
 	go(Direction) :-
         i_am_at(Here),
@@ -445,6 +503,9 @@
 		retract(duit(X)),
 		retract(reputasi(Y)),
 		forall(object(O),retract(at(O,Place))),
+		forall(notanswered(Anything),retract(notanswered(Anything))),
+		forall(answered(Something),retract(answered(Something))),
+		forall(bangun(Person),retract(bangun(Person))),
 		assertfile(Str,C),
 		close(Str),
 		write('Game berhasil dimuat.'), nl.
@@ -471,7 +532,7 @@
 		write(Str,Rep),
 		write(Str,').'),
 		nl(Str),
-		forall(at(Itema,in_hand),(write(Str,'at('),write(Str,Itema),write(Str,',in_hand).'),nl(Str))),
+		forall((at(Itema,in_hand)),(write(Str,'at('),write(Str,Itema),write(Str,',in_hand).'),nl(Str))),
 		forall((at(Itemb,bank),object(Itemb)),(write(Str,'at('),write(Str,Itemb),write(Str,',bank).'),nl(Str))),
 		forall((at(Itemc,minimarket),object(Itemc)),(write(Str,'at('),write(Str,Itemc),write(Str,',minimarket).'),nl(Str))),
 		forall((at(Itemd,loteng),object(Itemd)),(write(Str,'at('),write(Str,Itemd),write(Str,',loteng).'),nl(Str))),
@@ -490,6 +551,9 @@
 		forall((at(Itemq,kamar_eka),object(Itemq)),(write(Str,'at('),write(Str,Itemq),write(Str,',kamar_eka).'),nl(Str))),
 		forall((at(Itemr,kolam),object(Itemr)),(write(Str,'at('),write(Str,Itemr),write(Str,',kolam).'),nl(Str))),
 		forall((at(Items,basement),object(Items)),(write(Str,'at('),write(Str,Items),write(Str,',basement).'),nl(Str))),
+		forall((answered(Something)),(write(Str,'answered('),write(Str,Something),write(Str,').'),nl(Str))),
+		forall((notanswered(Anything)),(write(Str,'notanswered('),write(Str,Anything),write(Str,').'),nl(Str))),
+		forall((bangun(Person)),(write(Str,'bangun('),write(Str,Person),write(Str,').'),nl(Str))),
 		write(Str,'('),
 		write(Str,'\''),
 		write(Str,'|'),
@@ -524,15 +588,45 @@
 /* Akhir game */
 	berhasil :-
 		write('Beruntungnya nasibku.'), nl,
-		write('Game Over.'), nl,
+		write('The End.'), nl,
+		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
 		
 	gagal :-
 		write('Malangnya nasibku.'), nl,
-		write('Game Over.'), nl,
+		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
+		
+	resetitem :-
+		forall((object(Object),at(Object,Place)),retract(at(Object,Place))),
+		assertz(at(kunci_motor,kos)),
+		assertz(at(laptop,kos)),
+		assertz(at(motor,kos)),
+		assertz(at(sabun,minimarket)),
+		assertz(at(obat_tidur,minimarket)),
+		assertz(at(makanan,restaurant)),
+		assertz(at(diary,kamar_eka)),
+		assertz(at(kunci_diary,basement)),
+		assertz(at(depositbox,bank)),
+		assertz(at(kloset,toilet)),
+		assertz(at(air,toilet)),
+		assertz(at(lemari,kamar_eka)),
+		assertz(at(atm,bank)),
+		assertz(at(mobil,gerbang)),
+		assertz(at(bunga,kebun)),
+		assertz(at(makanan_ikan,kolam)),
+		assertz(at(tempat_tidur,kamar_eka)),
+		assertz(at(kompor,dapur)),
+		assertz(at(kulkas,dapur)),
+		assertz(at(penerjemah,kamar_ortu)),
+		assertz(at(bola_tenis,minimarket)),
+		assertz(at(raket,minimarket)),
+		assertz(at(lemari_bekas,gudang)),
+		assertz(at(laci_bekas,gudang)),
+		assertz(at(meja,loteng)),
+		assertz(at(kursi,loteng)).
 		
 	quit :-
 		retract(player(_)),
@@ -541,8 +635,13 @@
 		retract(duit(_)),
 		assertz(duit(1000)),
 		retract(reputasi(_)),
-		assertz(reputasi(0)).
-		
+		assertz(reputasi(0)),
+		resetitem,
+		forall(notanswered(Anything),retract(notanswered(Anything))),
+		forall(answered(Something),retract(answered(Something))),
+		assertz(notanswered(depositbox)),
+		assertz(notanswered(sopir)),
+		assertz(notanswered(tukangkebun)).
 
 /* Rules perinta dibawah start */
 	do(n) :- go(n),!.
@@ -553,6 +652,7 @@
 	do(d) :- go(d),!.
 	do(take(X)):- take(X),!.
 	do(drop(X)):- drop(X),!.
+	do(give(Person,Somehthing)):-give(Person,Something),!.
 	do(use(X)) :- use(X),!.
 	do(stat) :- stat,!.
 	do(talk(X)):- talk(X),!.
@@ -718,7 +818,7 @@
 	talk(X) :-
         i_am_at(Place),
         npc(X),
-		clue(X),
+		clue(X), nl,
         at(X, Place),
         dialog(X),
         nl, !.
@@ -733,14 +833,22 @@
         i_am_at(Place),
         npc(X),
         at(X, Place),
-		retract(duit(Y)),
 		retract(reputasi(R)),
-		Z is (Y+100),
+		R>0,
+		retract(duit(Y)),
+		Z is (Y+100*R),
 		S is (R-1),
 		assertz(duit(Z)),
 		assertz(reputasi(S)),
 		write(X), write(' : Nih..'), nl,
 		write('Aku : Wah, terimakasih banyak..'),
+		nl, !.
+		
+	askmoney(X) :-
+		i_am_at(Place),
+        npc(X),
+        at(X, Place),
+		write(X), write(' : Aku tidak akan memberikan sepeser pun ke orang sepertimu.'),
 		nl, !.
 
 	askmoney(_) :-
@@ -773,7 +881,7 @@
 	dialog(gengmotor) :-
 		write('Geng Motor : Arghh togel gua gak keluar-keluar nih!'),nl.
 	dialog(anjing) :- 
-		write('Anjing : Woof woof...(gak waras ngomong sama guguk)',nl).
+		write('Anjing : Woof woof...(gak waras ngomong sama guguk)'),nl.
 	dialog(sopir) :-
 		write('Sopir : Kapan ya saya bisa jadi sopir pesawat...'),nl.
 
@@ -1006,10 +1114,12 @@
 		notanswered(Thing),
 		write('Apa jawabannya ?'),nl,
 		read(Ans),
-		((((Thing==depositbox),(Ans==nothing)) -> ((retract(notanswered(depositbox))),(assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
+		(
+		(((Thing==depositbox),(Ans==nothing)) -> ((retract(notanswered(depositbox))),(assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
 		(((Thing==sopir),(Ans==kemeja)) -> ((retract(notanswered(sopir))),(assertz(answered(sopir))),write('Sopir : Yaa kamu benar! Ini aku berikan uang sebesar 30000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
 		(((Thing==tukangkebun),(Ans==8)) -> ((retract(notanswered(tukangkebun))),(assertz(answered(tukangkebun))),write('Tukang kebun : Wahh sepertinya kamu bener, ini uang buat kamu (10000)'),nl,duit(X),(Y is (X+30000)),retract(duit(X)),assertz(duit(Y))));
-		write('Aku : Aku rasa jawabannya salah...'),nl,!).
+		write('Aku : Aku rasa jawabannya salah...'),nl,!
+		).
 		
 	answer(_) :-
 		write('Kamu tidak bisa menjawab itu disini.'),nl.
@@ -1032,7 +1142,28 @@
 		write('                  #  #### #    # # ## # #####     #     # #    # #####  #    # '), nl,
 		write('                  #     # ###### #    # #         #     # #    # #      #####  '), nl,
 		write('                  #     # #    # #    # #         #     #  #  #  #      #   #  '), nl,
-		write('                   #####  #    # #    # ######    #######   ##   ###### #    #'), nl.
+		write('                   #####  #    # #    # ######    #######   ##   ###### #    #'), nl, nl,
+		write('               ...'), nl,
+		write('             ;::::;'), nl,
+		write('           ;::::; :;'), nl,
+		write('         ;:::::;   :;'), nl,
+		write('        ;:::::;     ;.'), nl,
+		write('       ,:::::;       ;           OOO'), nl,
+		write('       ::::::;       ;          OOOOO'), nl,
+		write('       ;:::::;       ;         OOOOOOOO'), nl,
+		write('      ,;::::::;     ;;         / OOOOOOO'), nl,
+		write('    ;:::::::::`. ,,,;.        /  / DOOOOOO'), nl,
+		write('  .;;:::::::::::::::::;,     /  /     DOOOO'), nl,
+		write(' ,::::::;::::::;;;;::::;,   /  /        DOOO'), nl,
+		write(';`::::::`;::::::;;;::::: ,#/  /          DOOO'), nl,
+		write(':`:::::::`;::::::;;::: ;::#  /            DOOO'), nl,
+		write('::`:::::::`;:::::::: ;::::# /              DOO'), nl,
+		write('`:`:::::::`;:::::: ;::::::#/               DOO'), nl,
+		write(' :::`:::::::`;; ;:::::::::##                OO'), nl,
+		write(' ::::`:::::::`;::::::::;:::#                OO'), nl,
+		write(' `:::::`::::::::::::;;`:;::#                O'), nl,
+		write('  `:::::`::::::::;; /  / `:#'), nl,
+		write('   ::::::`:::::;;  /  /   `#'), nl.
 
 	
 	gambar(love):-

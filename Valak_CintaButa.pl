@@ -239,6 +239,11 @@
 		write('Saldo di akun Anda sudah habis.'),
 		nl, !.
 
+	use(motor) :-
+		examine(motor).
+	
+	use(kunci_motor):-
+		examine(kunci_motor).
 	use(_) :-
 		write('Barang tersebut tidak bisa digunakan.'), nl.
 	
@@ -292,7 +297,13 @@
 		retract(reputasi(Y)),
 		assertz(reputasi(Z)),
 		write('Boss : Waduh ambil-ambil makanan dari restoran saya yaa...'),nl.
-		
+	
+	take(X) :-
+		npc(X),
+		i_am_at(Place),
+		at(X,Place),
+		write('Aku merasa aneh, apa yang mau aku lakukan?'),nl.
+	
 	take(_) :-
         write('Aku tidak melihat itu di sini.'),
         nl.
@@ -331,6 +342,12 @@
 		at(Item,restaurant),
 		i_am_at(restaurant),
 		write('Uangnya tidak cukup'),nl,!.
+	
+	buy(X) :-
+		npc(X),
+		i_am_at(Place),
+		at(X,Place),
+		write('Aku merasa aneh, apa yang mau aku lakukan?'),nl.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.
@@ -343,7 +360,12 @@
         assertz(at(X, Place)),
         write('OK. Aku tidak lagi memegang '), write(X), write('.'),
         nl.
-
+	
+	drop(makanan) :-
+		at(X, in_hand),
+        write('Sebaiknya aku tidak membuang-buang '), write(X), write('.'),
+        nl.
+	
 	drop(_) :-
         write('Bagaimana aku mau meletakkannya?? Barang tersebut saja tidak kupegang.'),
         nl.
@@ -385,7 +407,7 @@
         write('Objek yang terdapat di sini: '), nl,
         notice_objects_at(Place),
         nl.
-
+    
 /* These rules set up a loop to mention all the objects
    in your vicinity. */
 	notice_objects_at(Place) :-
@@ -396,16 +418,11 @@
 
 /* stat */
 	stat :-
-		player(Z),
 		write('Duit : '), X = Y, duit(Y), write(X), nl,
 		write('Reputasi : '), P = Q, reputasi(Q), write(P), nl,
 		write('Inventaris-ku : '), nl,	notice_objects_at(in_hand),
 		!.
-		
-	stat :-
-		write('Belum ada stat.'),nl,
-		fail.
-	
+			
 /* Instructions */
 	instructions :-
 		write('Berikut instruksi yang dapat digunakan :'),nl,
@@ -434,9 +451,9 @@
 		nl,
 		read(X),
 		assertz(player(X)),
-		write('Halo, '),
+		write('Namaku '),
 		write(X),
-		write('!'),
+		write('.'),
 		nl.
 
 /* Rules untuk File Eksternal */
@@ -515,7 +532,6 @@
 /* Starting game */
 	start :-
 		inputnama,
-		write('Selamat datang di game Cinta Buta!'), nl,
 		write('Huft.. Beberapa hari lagi aku dan pacarku, Eka, '), nl,
 		write('akan merayakan anniv yang ke-5.'), nl,
 		write('Kami bersepakat bahwa kami akan melakukan tukar kado.'), nl,
@@ -937,11 +953,15 @@
 	examine(motor) :-
 		at(motor,Place),
 		i_am_at(Place),
-		write('Motor bebek kesayangan pemberian orang tua.'),nl.
-	
+		write('Motor bebek kesayangan pemberian orang tua.'),nl,
+		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
+		write('dan masukkan perintah ride ketika sedang seruangan dengan'),nl,
+		write('motor.'),nl.
+			
 	examine(motor) :-
 		at(motor, in_hand),
-		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl.
+		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl,
+		write('Cara berhenti menggunakan motor, dengan perintah drop(motor).'),nl.
 	
 	examine(depositbox) :-
 		i_am_at(bank),

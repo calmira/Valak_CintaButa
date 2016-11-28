@@ -86,7 +86,8 @@
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl, fail,!.
+
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl,fail,!.
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
 	path(kamar_ortu, s, kamar_eka).
@@ -100,7 +101,7 @@
 	path(kamar_eka, n, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(kamar_eka, n, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl, fail,!.
+		write('Mama Eka: Apa yang kamu lakukan? Keluar dari situ!'), nl,fail, !.
 	path(kolam, n, kebun).
 	path(kamar_eka, d, basement).
 	path(basement, u, kamar_eka).
@@ -161,7 +162,18 @@
 	npc(sopir).
 	
 /* Sidequest */
-	sidequest(pengemis,1).
+	completesidequest(A,B,C) :-
+		assertz(completed(A)),
+		retract(reputasi(H)),
+		I is H+B,
+		assertz(reputasi(I)),
+		retract(sidequest(mama_eka,D)),
+		E is D-1,
+		assertz(sidequest(mama_eka,E)),
+		retract(duit(F)),
+		G is F+C,
+		assertz(duit(G)),
+	
 		
 /* Objects */		
 	object(kunci_motor).
@@ -212,6 +224,26 @@
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
+	use(kompor) :-
+		i_am_at(dapur),
+		sidequest(mama_eka,1),
+		at(bahan_makanan,in_hand),
+		completesidequest(bantu_mama,3,5000),
+		retract(at(bahan_makanan,in_hand)),
+		write('Mama Eka : Kamu benar-benar calon mantu yang baik ya!'), nl,
+		write('Mama Eka : Sebagai rasa terima kasih, nih tante kasih 5000'),nl,nl,
+		write('Sidequest Bantu Mama selesai!'),nl,
+		!.
+		
+	use(kompor) :-
+		i_am_at(dapur),
+		sidequest(mama_eka,1),
+		write('Waduh.. bahan makanannya belum ada.'), nl,!.
+		
+	use(kompor) :-
+		i_am_at(dapur),
+		write('Aku tidak bisa memasak..'), nl,!.
+		
 	use(tempat_tidur) :-
 		i_am_at(kamar_eka),
 		write('Zzzzz... Zzz...'),nl.
@@ -402,12 +434,10 @@
 		at(pengemis,X),
 		at(makanan,in_hand),
 		sidequest(pengemis,1),
-		retract(sidequest(pengemis,1)),
-		assertz(sidequest(pengemis,0)),
-		assertz(completed(sedekah)),
+		completesidequest(sedekah,2,0),
 		retract(at(makanan,in_hand)),
 		write('Pengemis : Wah.. Adek baik sekali.. Terima kasih ya..'), nl,nl,
-		write('Sidequest Sedekah selesai'), nl,!.
+		write('Sidequest Sedekah selesai!'), nl,!.
 		
 	give(mama_eka,obat_tidur) :-
 		i_am_at(dapur),
@@ -497,7 +527,7 @@
 		write('Reputasi : '), P = Q, reputasi(Q), write(P), nl,
 		write('Inventaris-ku : '), nl,	notice_objects_at(in_hand),
 		write('Completed sidequest : '),nl,
-		forall(completed(X),(write(X),nl)),
+		forall(completed(A),(write(A),nl)),
 		!.
 /* Instructions */
 	instructions :-
@@ -911,19 +941,24 @@
 		write('Boss : Apa? Kamu mau kerja disini? Hahaha...'),nl,
 		write('Kamu mulai hari ini. Buruan! Time is money. '),nl.
 	dialog(mama_eka) :-
+		sidequest(mama_eka,0),
 		write('Mama Eka : Hai nak, kamu lagi mencari Eka?'),nl.
+	dialog(mama_eka) :-
+		assertz(sidequest(mama_eka,1)),
+		write('Mama Eka : Eeh apa kabar? Tante lagi masak nih..'),nl,
+		write('Aku : Waah kelihatannya enak. Boleh kubantu Tan?'), nl,
+		write('Mama Eka : Okee ini resepnya. Bahan makanan ada di kulkas.'),nl,nl,
+		write('Sidequest Bantu Masak : Bantulah Mama Eka memasak.'),nl,!.
 	dialog(oma_eka) :-
 		write('Oma Eka : Nenek sudah tua, cu...'), nl.
 	dialog(tetangga) :-
 		write('Tetangga : Hai, '), player(X),write(X), write('! Aduh akhir-akhir ini'), nl,
 		write('lagi banyak tindakan kriminal, bikin saya resah saja...').
 	dialog(pengemis) :-
-		sidequest(pengemis,Y),
-		Y==0,
+		sidequest(pengemis,0),
 		write('Pengemis : Hari yang cerah ya Dek..').
 	dialog(pengemis) :-
-		sidequest(pengemis,Y),
-		Y==1,
+		assertz(sidequest(pengemis,1)),
 		write('Pengemis : Dek... Kasihan, dek... Belum makan tiga hari...'),nl,
 		write('Duh kasihan sekali kakek ini.. Aku harus memberikan sesuatu.'),nl,nl,
 		write('Sidequest Sedekah : Berikan makanan pada pengemis.'),nl,!.
@@ -1069,7 +1104,12 @@
 	examine(laptop) :-
 		i_am_at(kos),
 		write('Masih mulus seperti baru, sayangnya krisis internet.'),nl.
-		
+	
+	examine(kulkas) :-
+		i_am_at(dapur),
+		sidequest(mama_eka,1),
+		assertz(at(bahan_makanan,in_hand)),
+		write('Nah ini dia bahannya..'),nl,!.
 	examine(kulkas):-
 		i_am_at(dapur),
 		write('Terdapat secarik kertas, isinya: '),nl,

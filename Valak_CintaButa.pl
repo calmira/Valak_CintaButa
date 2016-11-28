@@ -161,6 +161,7 @@
 	ringan(bunga).
 	ringan(makanan_ikan).
 	ringan(penerjemah).
+	ringan(air).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
@@ -177,7 +178,7 @@
 	use(penerjemah) :-
 		\+i_am_at(kolam),
 		at(penerjemah,in_hand),
-		write('Kamu tidak bisa menggunakan itu disini.'),nl.
+		write('Aku tidak bisa menggunakan itu disini.'),nl.
 	use(laptop):-
 		write('Belanja online kini lebih mudah!'), nl,
 		write('...'), nl,
@@ -221,6 +222,12 @@
         write('OK. Aku mengambil '), write(X), write('.'),
         nl, !.
 		
+	take(laptop) :-
+		i_am_at(X),
+		at(laptop,X),
+		write('Ah.. tasku tidak muat kalau harus bawa laptop.'), nl,
+		!.
+	
 	take(X) :-
         i_am_at(Place),
         object(X),

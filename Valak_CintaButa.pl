@@ -947,7 +947,7 @@
 		write('Yaaaa, tapi yang penting aku masih bisa sama Blacky dan '),write(X),write(' udah seneng banget kok :D'),nl,
 		write('OVERALL, THANK GOD, HARI INI AKU SENENGG :D, semoga ada hari lain lagi deh ya kayak hari ini.'),nl.
 		
-	clue(_) :- write('Tidak ada clue').
+	clue(_).
 
 	answer(Thing) :-
 		i_am_at(Place),

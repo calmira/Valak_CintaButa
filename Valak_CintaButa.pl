@@ -5,6 +5,7 @@
 :- dynamic(duit/1).
 :- dynamic(reputasi/1).
 :- dynamic(at/2).
+:- dynamic(quitgame/1).
 
 /* current state */
 	i_am_at(kos).
@@ -29,7 +30,8 @@
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
 		write('Malangnya nasibku.'),nl, write('Game Over'),
-		quitgame(true), fail.
+		retract(quitgame(false)),
+		assertz(quitgame(true)), fail.
 	path(banda, s, lombok).	
 	path(banda, w, aceh).
 	path(restaurant, s, gerbang).
@@ -39,7 +41,8 @@
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
 		write('Malangnya nasibku.'),nl, write('Game Over'),
-		quitgame(true), fail.
+		retract(quitgame(false)),
+		assertz(quitgame(true)), fail.
 	path(kos, e, lombok).	
 	path(lombok, n, banda).
 	path(lombok, e, gerbang).
@@ -51,7 +54,8 @@
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
 		write('Malangnya nasibku.'),nl, write('Game Over'),
-		quitgame(true), fail.
+		retract(quitgame(false)),
+		assertz(quitgame(true)), fail.
 	path(gerbang, w, lombok).	
 	path(dapur, u, loteng).
 	path(dapur, e, kamar_ortu).
@@ -148,8 +152,7 @@
 	object(penerjemah).		
 	object(bola_tenis).
 	object(raket).
-	object(lemari_bekas).
-	
+		
 	ringan(kunci_motor).
 	ringan(sabun).
 	ringan(obat_tidur).
@@ -185,10 +188,7 @@
 		i_am_at(kamar_eka),
 		clue(diary).
 	use(mobil) :-
-		write('Supir : HEH! MAU DIBAWA KE MANA MOBIL MAJIKAN SAYA??'), nl,
-		Z is Y-1,
-		retract(reputasi(Y)),
-		assertz(reputasi(Z)).
+		write('Supir : HEH! MAU DIBAWA KE MANA MOBIL MAJIKAN SAYA??'), nl.
 
 	use(kloset) :-
 		write('Fyuh leganya...'), nl.
@@ -202,17 +202,8 @@
 		write('Saldo di akun Anda sudah habis.'),
 		nl, !.
 
-	use(X) :-
-		i_am_at(Y),
-		at(X,Y),
-		write('Barang tersebut tidak bisa digunakan.'), nl.
-		
-	use(X) :-
-		object(X),
-		write('Barang tersebut tidak ada disini.'), nl.
-		
 	use(_) :-
-		write('Barang apa itu?'), nl.
+		write('Barang tersebut tidak bisa digunakan.'), nl.
 	
 	
 /* These rules describe how to pick up an object. */
@@ -248,6 +239,16 @@
 		retract(reputasi(Y)),
 		assertz(reputasi(Z)),
 		write('Kasir : Heh ! Jangan mencuri yaa !'),nl.
+	
+	take(X) :-
+		i_am_at(restaurant),
+		object(X),
+		at(X,restaurant),
+		reputasi(Y),
+		Z is Y-1,
+		retract(reputasi(Y)),
+		assertz(reputasi(Z)),
+		write('Boss : Waduh ambil-ambil makanan dari restoran saya yaa...'),nl.
 		
 	take(_) :-
         write('Aku tidak melihat itu di sini.'),
@@ -257,12 +258,24 @@
 		at(Item,minimarket),
 		i_am_at(minimarket),
 		duit(X),
-		(((Item == sabun),(X>=2000),(Y is (X-2000)));((X>=100000),(Item==raket),(Y is (X-100000)));((X>=50000),(Item=bola_tenis),(Y is (X-50000)))),
+		(((Item == sabun),(X>=2000),(Y is (X-2000)));((X>=100000),(Item==raket),(Y is (X-100000)));((X>=50000),(Item=bola_tenis),(Y is (X-50000)));
+		((Item==obat_tidur),(X>=5000),(Y is (X-5000)))),
 		retract(duit(X)),
 		assertz(duit(Y)),
 		retract(at(Item,minimarket)),
 		assertz(at(Item,in_hand)),
-		write('Kasir : Terima kasih sudah berbelanja, sampai jumpa !'),nl.
+		write('Kasir : Terima kasih sudah berbelanja, sampai jumpa!'),nl.
+		
+	buy(Item) :-
+		at(Item,restaurant),
+		i_am_at(restaurant),
+		duit(X),
+		((Item==makanan),(X>=25000),(Y is (X-25000))),
+		retract(duit(X)),
+		assertz(duit(Y)),
+		retract(at(Item,restaurant)),
+		assertz(at(Item,in_hand)),
+		write('Boss : Makasih .. Makasih.. Sering-sering dateng ya!'),nl.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.
@@ -286,7 +299,7 @@
         path(Here, Direction, There),
         retract(i_am_at(Here)),
         assertz(i_am_at(There)),
-        look,!.
+		(quitgame(false) -> (look,!); !).
 
 	go(_) :-
         write('Tidak ada apa-apa disana.'),nl.
@@ -298,6 +311,7 @@
 		i_am_at(Place),
 		retract(at(motor,Place)),
 		assertz(at(motor,in_hand)),
+		write('Aku : Sekarang aku bisa mengendarai motor ! BRUMMM BRUMMM'),
 		look,!.
 
 /* This rule tells how to look about you. */
@@ -448,8 +462,7 @@
 		write('> '),
 		read(X),
 		(
-			X\==quit -> do(X), fail; 
-			quitgame(true) -> !;
+			X\==quit -> do(X), (quitgame(true) -> ! ; fail); 
 			write('Udahan dulu ah.'), nl, !).
 
 /* Rules perinta dibawah start */
@@ -625,6 +638,7 @@
 	talk(X) :-
         i_am_at(Place),
         npc(X),
+		clue(X),
         at(X, Place),
         dialog(X),
         nl, !.
@@ -684,127 +698,17 @@
     examine(kunci_motor) :- 
 		i_am_at(kos),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
-		write('dan masukkan perintah ride ketika sedang seruangan dengan'), nl,
-		write('motor.'),nl.
+		write('dan sedang satu ruangan dengan motor.'),nl.
 	
 	examine(kunci_motor) :- 
 		at(kunci_motor,in_hand),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
-		write('dan masukkan perintah ride ketika sedang seruangan dengan'),nl,
-		write('motor.'),nl.
-		
-	examine(sabun):-
-		i_am_at(minimarket),
-		write('Sabun yang wangi ini seharga 2000'), nl.
-	
-	examine(sabun):-
-		at(sabun, in_hand),
-		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl.
-	
-	examine(obat_tidur):-
-		i_am_at(minimarket),
-		write('Obat tidur cap gajah mabok seharga 5000'), nl.
-		
-	examine(obat_tidur):-
-		at(obat_tidur, in_hand),
-		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl.
-	
-	examine(raket):-
-		i_am_at(minimarket),
-		write('Raket seharga 100000.'), nl.
-	
-	examine(raket):-
-		at(raket, in_hand),
-		write('Raket yenox berkualitas tinggi.'), nl.
-	
-	examine(bola_tenis):-
-		i_am_at(minimarket),
-		write('Bola tenis ini seharga 50000.'), nl.
-	
-	examine(bola_tenis):-
-		at(bola_tenis, in_hand),
-		write('Mainan favorit para anjing.'), nl.
-	
-	examine(kunci_diary):-
-		i_am_at(basement),
-		write('Kunci apa ya ini? Tampak baru dan mengkilap.'), nl.
-	
-	examine(kunci_diary):-
-		at(kunci_diary, in_hand),
-		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl.
-		
-	examine(makanan):-
-		i_am_at(restaurant),
-		write('Makanan ini seharga 25000.'),nl.
-		
-	examine(makanan):-
-		at(makanan,in_hand),
-		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl.
-		
-	examine(bunga) :-
-		i_am_at(kebun),
-		write('Bunga-bunga yang cantik, dibesarkan seperti anak sendiri.'),nl.
-	
-	examine(bunga) :-
-		i_am_at(kebun),
-		write('Setangkai bunga untuk mencerahkan hati orang yang spesial.'),nl.
-	
-	examine(makanan_ikan) :-
-		i_am_at(kolam),
-		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
-		
-	examine(makanan_ikan) :-
-		at(makanan,in_hand),
-		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
-	
-	examine(kloset) :-
-		i_am_at(toilet),
-		write('Wah klosetnya mulus... semulus kulit Eka.'),nl.
-		
-	examine(air) :- 
-		i_am_at(toilet),
-		write('Pompa air sumitshi, air mengalir sampai jauh...'),nl.
-	
-	examine(atm) :-
-		i_am_at(bank),
-		write('Aku bisa mengambil uang disini'),nl.
-		
-	examine(mobil) :-
-		i_am_at(gerbang),
-		write('Sepertinya aku harus mencoba menyetir mobil ini..'),nl.
-		
-	examine(lemari_bekas) :-
-		i_am_at(gudang),
-		write('Hiii seramnya...'),nl.
-	
-	examine(laci_bekas) :-
-		i_am_at(gudang),
-		write('Laci ini sudah lapuk dimakan rayap.'),nl.
+		write('dan sedang satu ruangan dengan motor.'),nl.
 	
 	examine(motor) :-
 		at(motor,Place),
 		i_am_at(Place),
 		write('Motor bebek kesayangan pemberian orang tua.'),nl.
-	
-	examine(motor) :-
-		at(motor, in_hand),
-		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl.
-	
-	examine(depositbox) :-
-		i_am_at(bank),
-		clue(depositbox).
-	
-	examine(lemari) :-
-		i_am_at(kamar_eka),
-		write('Lemari ini hanya berisi baju-baju Eka.'), nl.
-	
-	examine(kursi):-
-		i_am_at(loteng),
-		write('Kalau aku duduk di sini akan hancur kursinya.'), nl.
-		
-	examine(meja):-
-		i_am_at(loteng),
-		write('Meja ini sudah usang. Banyak coretan tip x di atasnya.'), nl.
 	
 	examine(laptop) :-
 		i_am_at(kos),
@@ -849,14 +753,14 @@
 		
 		
 /* Rules untuk clue */
-	clue(puzz1) :-
+	clue(sopir) :-
 		write('Aku memiliki teka-teki, di dalam sebuah keluarga ada seorang ayah, anak dan ibu,'),nl,
 		write('Suatu hari, sang ayah bertanya, "Hari ini aku harus mengenakan pakaian apa?"'),nl,
 		write('Di saat yang sama, sang anak juga bertanya, "Dimanakah aku harus meletakkan makanan ini?"'),nl,
 		write('Sang ibu bisa menjawab pertanyaan tersebut dengan hanya sekali jawab.'),nl,
 		write('Kira-kira apa jawaban sang ibu?'),!.
 		
-	clue(puzz2) :-
+	clue(tukangkebun) :-
 		write('Aku kesulitan berhitung, keponakanku punya satu pertanyaan yang tidak bisa aku jawab...'),nl,
 		write('Suatu hari seorang pria ingin mengadakan makan malam bersama dengan kekasihnya.'),nl,
 		write('Ia ingin mengadakan makan malam bersama dengan kekasihnya di rumahnya sendiri.'),nl,
@@ -871,12 +775,12 @@
 		write('dan tidak juga membereskan kamar, dan langsung memutuskan untuk pergi tidur.'),nl,
 		write('Berapakah jumlah lilin yang tersisa pada akhirnya?'),nl,!.
 		
-	clue(puzz3) :-
-		write('Aku pernah diberikan sebuah pertanyaan dalam Bahasa Inggris oleh temanku.'),nl,
+	clue(depositbox) :-
+		write('Jawaban dari teka-teki ini adalah password dari depositbox di bank ini.'),nl,
 		write('It is greater than God and more evil than the devil.'),nl,
 		write('Rich people need it, but poor people have it.'),nl,
 		write('If you eat it, you will die, what is it?'),nl,
-		write('Dia sudah menjanjikan bahwa jawabannya pasti dalam Bahasa Inggris.'),nl,!.
+		write('Jawabannya pasti dalam Bahasa Inggris.'),nl,!.
 		
 	clue(diary) :-
 		player(X),
@@ -892,3 +796,15 @@
 		write('Apalagi kalau inget itu sempet jadi hadiah anniversary jadian kita yang ke-3 taun (?)'),nl,
 		write('Yaaaa, tapi yang penting aku masih bisa sama Blacky dan '),write(X),write(' udah seneng banget kok :D'),nl,
 		write('OVERALL, THANK GOD, HARI INI AKU SENENGG :D, semoga ada hari lain lagi deh ya kayak hari ini.'),nl.
+		
+	clue(_).
+	
+	answer(Something) :-
+		i_am_at(Place),
+		at(Something,Place),
+		write('Apa jawabannya ?'),nl,
+		read(Ans),
+		((((Something==depositbox),\+(answered(depositbox)),(Ans==nothing)) -> ((assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),Y is X+40000,retract(duit(X)),assertz(duit(Y))));
+		(((Something==sopir),\+(answered(sopir)),(Ans==kemeja)) -> ((assertz(answered(sopir))),write('Sopir : Yaa kamu benar! Ini aku berikan uang sebesar 30000!'),nl,duit(X),Y is X+30000,retract(duit(X)),assertz(duit(Y))));
+		((Something==tukangkebun) -> (Ans==8));
+		write('Aku : Aku rasa jawabannya salah...')),!.

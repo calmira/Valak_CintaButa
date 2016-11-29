@@ -574,7 +574,12 @@
 		write('Anjing : Woof woof !'),nl,!.
 	give(ikan,makanan_ikan) :-
 		i_am_at(kolam),
-		at(makanan_ikan,in_hand).
+		retract(at(makanan_ikan,in_hand)),
+		reputasi(X),
+		Y is X+1,
+		retract(reputasi(X)),
+		assertz(reputasi(Y)),
+		write('Ikan : ').
 	give(ikan,Something) :-
 		i_am_at(kolam),
 		write('Ikan : Blubub blubub blubub'),nl,!.

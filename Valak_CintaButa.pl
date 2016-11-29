@@ -515,7 +515,8 @@
 		at(parcel,in_hand),
 		retract(at(parcel,in_hand)),
 		write('Tetangga : Wah, terima kasih banyak yaa...'),nl,
-		write('Ini uang untukmu, sebesar 20000'),nl,
+		write('Ini uang untukmu, sebesar 20000'),nl,nl,
+		write('Sidequest Kerja selesai!'),nl,
 		completesidequest(boss,kerja,10,20000),!.
 		
 	give(bunga,penyiram_tanaman_air) :-
@@ -1010,7 +1011,7 @@
 		assertz(active(kerja)),
 		i_am_at(restaurant),
 		assertz(at(parcel,in_hand)),
-		write('Boss : Wah kamu tidak boleh minta-minta uang dengan cara seperti ini, bagaimana jika kamu membantu saya mengirim parcel ?'),nl,
+		write('Boss : Wah kamu tidak boleh minta-minta uang dengan cara seperti ini, bagaimana jika kamu membantu saya mengirim parcel ?'),nl,nl,
 		write('Sidequest Kerja : Ayo bekerja untuk boss restaurant, kirim parcel yang sudah ada di tanganmu ke tetangga di Jalan Banda.'),nl,!.
 		
 	askmoney(X) :-

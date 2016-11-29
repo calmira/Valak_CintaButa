@@ -87,7 +87,6 @@
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-
 		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl,fail,!.
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
@@ -460,6 +459,7 @@
 	give(Person,Something) :-
 		i_am_at(Place),
 		at(Person,Place),
+		npc(Person),
 		\+at(Something,in_hand),
 		write('Aku : Aku tidak punya benda itu sekarang.'),nl,!.
 		

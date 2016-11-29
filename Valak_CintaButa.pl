@@ -9,6 +9,8 @@
 :- dynamic(answered/1).
 :- dynamic(notanswered/1).
 :- dynamic(bangun/1).
+:- dynamic(sidequest/2).
+:- dynamic(completed/2).
 
 /* current state */
 	i_am_at(kos).
@@ -80,7 +82,7 @@
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, !.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl, !.
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
 	path(kamar_ortu, s, kamar_eka).
@@ -94,7 +96,7 @@
 	path(kamar_eka, n, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(kamar_eka, n, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, !.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl, !.
 	path(kolam, n, kebun).
 	path(kamar_eka, d, basement).
 	path(basement, u, kamar_eka).
@@ -127,7 +129,7 @@
     at(oma_eka, dapur).
     at(kompor, dapur).
     at(kulkas, dapur).
-    at(mama_eka, kamar_ortu).
+    at(mama_eka, dapur).
     at(penerjemah, kamar_ortu).
     at(tukangkebun, kebun).
     at(bunga, kebun).
@@ -153,6 +155,9 @@
 	npc(gengmotor).
 	npc(anjing).
 	npc(sopir).
+	
+/* Sidequest */
+	sidequest(pengemis,1).
 		
 /* Objects */		
 	object(kunci_motor).
@@ -820,10 +825,17 @@
 	dialog(oma_eka) :-
 		write('Oma Eka : Nenek sudah tua, cu...'), nl.
 	dialog(tetangga) :-
-		write('Tetangga : Hai, '), write(X),player(X), write('! Aduh akhir-akhir ini'), nl,
+		write('Tetangga : Hai, '), player(X),write(X), write('! Aduh akhir-akhir ini'), nl,
 		write('lagi banyak tindakan kriminal, bikin saya resah saja...').
 	dialog(pengemis) :-
-		write('Pengemis : Dek... Kasihan, dek... Belum makan Mcd tiga hari...').
+		sidequest(pengemis,Y),
+		Y==0,
+		write('Pengemis : Hari yang cerah ya Dek..').
+	dialog(pengemis) :-
+		sidequest(pengemis,Y),
+		Y==1,
+		write('Pengemis : Dek... Kasihan, dek... Belum makan tiga hari...'),nl,nl,
+		write('Duh kasihan sekali kakek ini.. Aku harus memberikan sesuatu'),nl.
 	dialog(kasir) :-
 		write('Kasir : Gak sekalian pulsanya?').
 	dialog(gengmotor) :-

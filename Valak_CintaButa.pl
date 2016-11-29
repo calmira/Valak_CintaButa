@@ -1334,6 +1334,7 @@
 		
 		
 	tunggu :-
+		gambar(game_over2),
 		write('Aku memutuskan menunggu kepulangan Eka setelah semua ini.'), nl,
 		write('Namun ternyata aku gagal memberikan yang terbaik.'), nl,
 		gagal.
@@ -1446,6 +1447,31 @@
 		write('  `:::::`::::::::;; /  / `:#'), nl,
 		write('   ::::::`:::::;;  /  /   `#'), nl.
 
+	gambar(game_over2):-
+		write('                   #####                          #######                      '), nl,
+		write('                  #     #   ##   #    # ######    #     # #    # ###### #####  '), nl,
+		write('                  #        #  #  ##  ## #         #     # #    # #      #    # '), nl,
+		write('                  #  #### #    # # ## # #####     #     # #    # #####  #    # '), nl,
+		write('                  #     # ###### #    # #         #     # #    # #      #####  '), nl,
+		write('                  #     # #    # #    # #         #     #  #  #  #      #   #  '), nl,
+		write('                   #####  #    # #    # ######    #######   ##   ###### #    #'), nl, nl,
+		write('                                  ('), nl,
+		write('                         .-```-..` \\                         Who the...??'), nl,
+		write('               _______ .`       -   \\                           yikes!'), nl,
+		write('             <<<<<<<< );__   ,,,_)   \\                      __ /'), nl,
+		write('                <<<<<<<<< ) ;C  /     \\                /ZZZ`  )'), nl,
+		write('                  <<<<<< (.-`-.  )====_)_=======>      .-````>>>>>>>>>>'), nl,
+		write('                    <<<<< \\    ```````   )           .`    >>>>>>>>>'), nl,
+		write('                    ;  <<<     .......__/       __\\_;    ,>>>>>>>'), nl,
+		write('               .-```         (         )          / / (`"\\__'), nl,
+		write('            .-`              ;.       /            (;/;) /\\'), nl,
+		write('           /  .-`     .     =  .     /'), nl,
+		write('       _-``\\_/         `. .`    .   /'), nl,
+		write('    .-`  )  ;\\          ```.     . /'), nl,
+		write('   ;   .````  `.       `    ;     ('), nl,
+		write('   O -`        .```       .`              '), nl,
+		write('             .`   .-``````                    '), nl,
+		write('             `o-`                         '), nl.
 	
 	gambar(love):-
 		write('                        OOOOO          OOOOO'), nl,

@@ -12,6 +12,7 @@
 :- dynamic(sidequest/2).
 :- dynamic(completed/1).
 :- dynamic(saldo_habis/0).
+:- dynamic(active/1).
 
 /* current state */
 	i_am_at(kos).
@@ -61,16 +62,16 @@
 	path(lombok, e, gerbang) :- at(motor, in_hand).
 	path(lombok, e, gerbang) :- at(motor, gerbang).
 	path(lombok, e, gerbang):-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,!.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(lombok, w, kos).
 	path(gerbang, n, restaurant).
 	path(gerbang, e, dapur) :- \+at(motor,in_hand).
 	path(gerbang, e, dapur) :-
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,!,fail.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
 	
 	path(gerbang, s, kebun) :- 	\+at(motor,in_hand).
 	path(gerbang, s, kebun) :- 	
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,!,fail.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
 	
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
@@ -635,6 +636,9 @@
 		forall(notanswered(Anything),retract(notanswered(Anything))),
 		forall(answered(Something),retract(answered(Something))),
 		forall(bangun(Person),retract(bangun(Person))),
+		forall(completed(Sidequest),retract(completed(Sidequest))),
+		forall(sidequest(A,B), retract(sidequest(A,B))),
+		forall(active(Quest), retract(active(Quest))),
 		assertfile(Str,C),
 		close(Str),
 		write('Game berhasil dimuat.'), nl.
@@ -683,6 +687,9 @@
 		forall((answered(Something)),(write(Str,'answered('),write(Str,Something),write(Str,').'),nl(Str))),
 		forall((notanswered(Anything)),(write(Str,'notanswered('),write(Str,Anything),write(Str,').'),nl(Str))),
 		forall((bangun(Person)),(write(Str,'bangun('),write(Str,Person),write(Str,').'),nl(Str))),
+		forall((completed(Sidequest)),(write(Str,'completed('), write(Str,Sidequest), write(Str,').'), nl(Str))),
+		forall((sidequest(A,B)),(write(Str,'sidequest('),write(Str,A),write(Str,','),write(Str,B),write(Str,').'), nl(Str))),
+		forall((active(Act)),(write(Str,'active('),write(Str,Act),write(Str,').'),nl(Str))),
 		write(Str,'('),
 		write(Str,'\''),
 		write(Str,'|'),

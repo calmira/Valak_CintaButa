@@ -20,7 +20,7 @@
 	notanswered(tukangkebun).
 	
 /* Deklarasi tidur */
-	bangun(X):- npc(X).
+	bangun(mama_eka).
 	
 /* connection of places */
 	path(bank, e, minimarket).
@@ -45,7 +45,7 @@
 	path(banda, w, aceh).
 	path(restaurant, s, gerbang) :- at(motor, in_hand).
 	path(restaurant, s, gerbang) :-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'), nl, fail.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(restaurant, w, banda).
 	path(kos, n, aceh).
 	path(kos, e, lombok) :-
@@ -58,16 +58,16 @@
 	path(lombok, n, banda).
 	path(lombok, e, gerbang):-at(motor, in_hand).
 	path(lombok, e, gerbang):-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'), nl, fail.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(lombok, w, kos).
 	path(gerbang, n, restaurant).
 	path(gerbang, e, dapur) :- \+at(motor,in_hand).
 	path(gerbang, e, dapur) :-
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
 	
 	path(gerbang, s, kebun) :- 	\+at(motor,in_hand).
 	path(gerbang, s, kebun) :- 	
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
 	
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
@@ -86,7 +86,7 @@
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, fail.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, fail,!.
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
 	path(kamar_ortu, s, kamar_eka).
@@ -100,7 +100,7 @@
 	path(kamar_eka, n, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(kamar_eka, n, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, fail.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, fail,!.
 	path(kolam, n, kebun).
 	path(kamar_eka, d, basement).
 	path(basement, u, kamar_eka).
@@ -133,7 +133,7 @@
     at(oma_eka, dapur).
     at(kompor, dapur).
     at(kulkas, dapur).
-    at(mama_eka, kamar_ortu).
+    at(mama_eka, dapur).
     at(penerjemah, kamar_ortu).
     at(tukangkebun, kebun).
     at(bunga, kebun).
@@ -210,12 +210,19 @@
 		i_am_at(kolam),
 		at(penerjemah,in_hand),
 		write('Ikan : Kamu tahu tidak? Eka sekarang sedang butuh uang.'),nl,
-		write('Ah, kamu tidak peka.'),nl.
+		write('Ah, kamu tidak peka.'),nl,!.
+		
+	use(penerjemah) :-
+		i_am_at(gerbang),
+		at(penerjemah,in_hand),
+		write('Anjing : Main lempar bola tenis memang seru yaa!'),nl,!.
 		
 	use(penerjemah) :-
 		\+i_am_at(kolam),
+		\+i_am_at(gerbang),
 		at(penerjemah,in_hand),
-		write('Aku tidak bisa menggunakan itu disini.'),nl.
+		write('Aku tidak bisa menggunakan itu disini.'),nl,!.
+		
 	use(laptop):-
 		write('Belanja online kini lebih mudah!'), nl,
 		write('...'), nl,
@@ -350,6 +357,42 @@
         write('Bagaimana aku mau meletakkannya?? Barang tersebut saja tidak kupegang.'),
         nl.
 
+	give(mama_eka,obat_tidur) :-
+		i_am_at(dapur),
+		at(obat_tidur,in_hand),
+		retract(at(obat_tidur,in_hand)),
+		write('Mama Eka : Wah, kamu tahu saja saya tidak bisa tidur dari kemarin.. Terima kasih obat tidurnya.'),nl,
+		write('Mama Eka pun tertidur karena meminum obat tidur yang kamu berikan'), nl,
+		retract(bangun(mama_eka)), !.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		at(Person,Place),
+		\+at(Something,in_hand),
+		write('Aku : Aku tidak punya benda itu sekarang.'),nl,!.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		\+(at(Person,Place)),
+		write('Aku : Orang itu tidak ada di sini sekarang.'),nl,!.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		at(Person,Place),
+		npc(Person),
+		Person \== anjing,
+		Person \== ikan,
+		at(Something,in_hand),
+		write(Person),write(' : Apa ini ? Aku tidak butuh benda ini.'),nl,!.
+		
+	give(anjing,Something) :-
+		i_am_at(gerbang),
+		write('Anjing : Woof woof !'),nl,!.
+		
+	give(ikan,Something) :-
+		i_am_at(kolam),
+		write('Ikan : Blubub blubub blubub'),nl,!.
+		
 /* This rule tells how to move in a given direction. */
 	go(Direction) :-
         i_am_at(Here),
@@ -484,7 +527,7 @@
 		write(Str,Rep),
 		write(Str,').'),
 		nl(Str),
-		forall(at(Itema,in_hand),(write(Str,'at('),write(Str,Itema),write(Str,',in_hand).'),nl(Str))),
+		forall((at(Itema,in_hand)),(write(Str,'at('),write(Str,Itema),write(Str,',in_hand).'),nl(Str))),
 		forall((at(Itemb,bank),object(Itemb)),(write(Str,'at('),write(Str,Itemb),write(Str,',bank).'),nl(Str))),
 		forall((at(Itemc,minimarket),object(Itemc)),(write(Str,'at('),write(Str,Itemc),write(Str,',minimarket).'),nl(Str))),
 		forall((at(Itemd,loteng),object(Itemd)),(write(Str,'at('),write(Str,Itemd),write(Str,',loteng).'),nl(Str))),
@@ -505,7 +548,7 @@
 		forall((at(Items,basement),object(Items)),(write(Str,'at('),write(Str,Items),write(Str,',basement).'),nl(Str))),
 		forall((answered(Something)),(write(Str,'answered('),write(Str,Something),write(Str,').'),nl(Str))),
 		forall((notanswered(Anything)),(write(Str,'notanswered('),write(Str,Anything),write(Str,').'),nl(Str))),
-		forall((bangun(Person),write(Str,'bangun('),write(Str,Person),write(Str,').'),nl(Str))),
+		forall((bangun(Person)),(write(Str,'bangun('),write(Str,Person),write(Str,').'),nl(Str))),
 		write(Str,'('),
 		write(Str,'\''),
 		write(Str,'|'),
@@ -541,12 +584,14 @@
 	berhasil :-
 		write('Beruntungnya nasibku.'), nl,
 		write('Game Over.'), nl,
+		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
 		
 	gagal :-
 		write('Malangnya nasibku.'), nl,
 		write('Game Over.'), nl,
+		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
 		
@@ -603,6 +648,7 @@
 	do(d) :- go(d),!.
 	do(take(X)):- take(X),!.
 	do(drop(X)):- drop(X),!.
+	do(give(Person,Somehthing)):-give(Person,Something),!.
 	do(use(X)) :- use(X),!.
 	do(stat) :- stat,!.
 	do(talk(X)):- talk(X),!.
@@ -768,7 +814,7 @@
 	talk(X) :-
         i_am_at(Place),
         npc(X),
-		clue(X),
+		clue(X), nl,
         at(X, Place),
         dialog(X),
         nl, !.
@@ -823,7 +869,7 @@
 	dialog(gengmotor) :-
 		write('Geng Motor : Arghh togel gua gak keluar-keluar nih!'),nl.
 	dialog(anjing) :- 
-		write('Anjing : Woof woof...(gak waras ngomong sama guguk)',nl).
+		write('Anjing : Woof woof...(gak waras ngomong sama guguk)'),nl.
 	dialog(sopir) :-
 		write('Sopir : Kapan ya saya bisa jadi sopir pesawat...'),nl.
 

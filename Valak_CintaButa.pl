@@ -10,19 +10,19 @@
 :- dynamic(notanswered/1).
 :- dynamic(bangun/1).
 :- dynamic(sidequest/2).
-:- dynamic(completed/2).
+:- dynamic(completed/1).
 
 /* current state */
 	i_am_at(kos).
 	quitgame(false).
-	duit(1000).
+	duit(5000).
 	reputasi(0).
 	notanswered(depositbox).
 	notanswered(sopir).
 	notanswered(tukangkebun).
 	
 /* Deklarasi tidur */
-	bangun(X):- npc(X).
+	bangun(mama_eka).
 	
 /* connection of places */
 	path(bank, e, minimarket).
@@ -46,7 +46,7 @@
 	path(restaurant, s, gerbang) :- at(motor, in_hand).
 	path(restaurant, s, gerbang) :- at(motor, gerbang).
 	path(restaurant, s, gerbang) :-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'), nl, fail.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(restaurant, w, banda).
 	path(kos, n, aceh).
 	path(kos, e, lombok) :-
@@ -58,7 +58,7 @@
 	path(lombok, e, gerbang) :- at(motor, in_hand).
 	path(lombok, e, gerbang) :- at(motor, gerbang).
 	path(lombok, e, gerbang):-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'), nl, fail.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(lombok, w, kos).
 	path(gerbang, n, restaurant).
 	path(gerbang, e, dapur) :- \+at(motor,in_hand).
@@ -204,7 +204,7 @@
 	price(obat_tidur,5000).
 	price(raket,100000).
 	price(bola_tenis,50000).
-	price(makanan,25000).
+	price(makanan,10000).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
@@ -216,12 +216,19 @@
 		i_am_at(kolam),
 		at(penerjemah,in_hand),
 		write('Ikan : Kamu tahu tidak? Eka sekarang sedang butuh uang.'),nl,
-		write('Ah, kamu tidak peka.'),nl.
+		write('Ah, kamu tidak peka.'),nl,!.
+		
+	use(penerjemah) :-
+		i_am_at(gerbang),
+		at(penerjemah,in_hand),
+		write('Anjing : Main lempar bola tenis memang seru yaa!'),nl,!.
 		
 	use(penerjemah) :-
 		\+i_am_at(kolam),
+		\+i_am_at(gerbang),
 		at(penerjemah,in_hand),
-		write('Aku tidak bisa menggunakan itu disini.'),nl.
+		write('Aku tidak bisa menggunakan itu disini.'),nl,!.
+		
 	use(laptop):-
 		write('Belanja online kini lebih mudah!'), nl,
 		write('...'), nl,
@@ -353,6 +360,55 @@
         write('Bagaimana aku mau meletakkannya?? Barang tersebut saja tidak kupegang.'),
         nl.
 
+/* These rules describe how to give an object. */
+	give(pengemis,makanan) :-
+		i_am_at(X),
+		at(pengemis,X),
+		at(makanan,in_hand),
+		sidequest(pengemis,1),
+		retract(sidequest(pengemis,1)),
+		assertz(sidequest(pengemis,0)),
+		assertz(completed(sedekah)),
+		retract(at(makanan,in_hand)),
+		write('Pengemis : Wah.. Adek baik sekali.. Terima kasih ya..'), nl,nl,
+		write('Sidequest Sedekah selesai'), nl,!.
+		
+	give(mama_eka,obat_tidur) :-
+		i_am_at(dapur),
+		at(obat_tidur,in_hand),
+		retract(at(obat_tidur,in_hand)),
+		write('Mama Eka : Wah, kamu tahu saja saya tidak bisa tidur dari kemarin.. Terima kasih obat tidurnya.'),nl,
+		write('Mama Eka pun tertidur karena meminum obat tidur yang kamu berikan'), nl,
+		retract(bangun(mama_eka)), !.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		at(Person,Place),
+		\+at(Something,in_hand),
+		write('Aku : Aku tidak punya benda itu sekarang.'),nl,!.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		\+(at(Person,Place)),
+		write('Aku : Orang itu tidak ada di sini sekarang.'),nl,!.
+		
+	give(Person,Something) :-
+		i_am_at(Place),
+		at(Person,Place),
+		npc(Person),
+		Person \== anjing,
+		Person \== ikan,
+		at(Something,in_hand),
+		write(Person),write(' : Apa ini ? Aku tidak butuh benda ini.'),nl,!.
+		
+	give(anjing,Something) :-
+		i_am_at(gerbang),
+		write('Anjing : Woof woof !'),nl,!.
+		
+	give(ikan,Something) :-
+		i_am_at(kolam),
+		write('Ikan : Blubub blubub blubub'),nl,!.
+		
 /* This rule tells how to move in a given direction. */
 	go(Direction) :-
         i_am_at(Here),
@@ -405,11 +461,13 @@
 		write('Duit : '), X = Y, duit(Y), write(X), nl,
 		write('Reputasi : '), P = Q, reputasi(Q), write(P), nl,
 		write('Inventaris-ku : '), nl,	notice_objects_at(in_hand),
+		write('Completed sidequest : '),nl,
+		forall(completed(X),(write(X),nl)),
 		!.
 		
 	stat :-
 		write('Belum ada stat.'),nl,
-		fail.
+		!.
 	
 /* Instructions */
 	instructions :-
@@ -487,7 +545,7 @@
 		write(Str,Rep),
 		write(Str,').'),
 		nl(Str),
-		forall(at(Itema,in_hand),(write(Str,'at('),write(Str,Itema),write(Str,',in_hand).'),nl(Str))),
+		forall((at(Itema,in_hand)),(write(Str,'at('),write(Str,Itema),write(Str,',in_hand).'),nl(Str))),
 		forall((at(Itemb,bank),object(Itemb)),(write(Str,'at('),write(Str,Itemb),write(Str,',bank).'),nl(Str))),
 		forall((at(Itemc,minimarket),object(Itemc)),(write(Str,'at('),write(Str,Itemc),write(Str,',minimarket).'),nl(Str))),
 		forall((at(Itemd,loteng),object(Itemd)),(write(Str,'at('),write(Str,Itemd),write(Str,',loteng).'),nl(Str))),
@@ -508,7 +566,7 @@
 		forall((at(Items,basement),object(Items)),(write(Str,'at('),write(Str,Items),write(Str,',basement).'),nl(Str))),
 		forall((answered(Something)),(write(Str,'answered('),write(Str,Something),write(Str,').'),nl(Str))),
 		forall((notanswered(Anything)),(write(Str,'notanswered('),write(Str,Anything),write(Str,').'),nl(Str))),
-		forall((bangun(Person),write(Str,'bangun('),write(Str,Person),write(Str,').'),nl(Str))),
+		forall((bangun(Person)),(write(Str,'bangun('),write(Str,Person),write(Str,').'),nl(Str))),
 		write(Str,'('),
 		write(Str,'\''),
 		write(Str,'|'),
@@ -544,12 +602,14 @@
 	berhasil :-
 		write('Beruntungnya nasibku.'), nl,
 		write('Game Over.'), nl,
+		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
 		
 	gagal :-
 		write('Malangnya nasibku.'), nl,
 		write('Game Over.'), nl,
+		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
 		
@@ -606,6 +666,7 @@
 	do(d) :- go(d),!.
 	do(take(X)):- take(X),!.
 	do(drop(X)):- drop(X),!.
+	do(give(Person,Somehthing)):-give(Person,Something),!.
 	do(use(X)) :- use(X),!.
 	do(stat) :- stat,!.
 	do(talk(X)):- talk(X),!.
@@ -771,7 +832,7 @@
 	talk(X) :-
         i_am_at(Place),
         npc(X),
-		clue(X),
+		clue(X), nl,
         at(X, Place),
         dialog(X),
         nl, !.
@@ -834,14 +895,15 @@
 	dialog(pengemis) :-
 		sidequest(pengemis,Y),
 		Y==1,
-		write('Pengemis : Dek... Kasihan, dek... Belum makan tiga hari...'),nl,nl,
-		write('Duh kasihan sekali kakek ini.. Aku harus memberikan sesuatu'),nl.
+		write('Pengemis : Dek... Kasihan, dek... Belum makan tiga hari...'),nl,
+		write('Duh kasihan sekali kakek ini.. Aku harus memberikan sesuatu.'),nl,nl,
+		write('Sidequest Sedekah : Berikan makanan pada pengemis.'),nl,!.
 	dialog(kasir) :-
 		write('Kasir : Gak sekalian pulsanya?').
 	dialog(gengmotor) :-
 		write('Geng Motor : Arghh togel gua gak keluar-keluar nih!'),nl.
 	dialog(anjing) :- 
-		write('Anjing : Woof woof...(gak waras ngomong sama guguk)',nl).
+		write('Anjing : Woof woof...(gak waras ngomong sama guguk)'),nl.
 	dialog(sopir) :-
 		write('Sopir : Kapan ya saya bisa jadi sopir pesawat...'),nl.
 

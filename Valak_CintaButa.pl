@@ -543,7 +543,9 @@
 		i_am_at(Place),
 		retract(at(motor,Place)),
 		assertz(at(motor,in_hand)),
-		write('Aku : Sekarang aku mengendarai motor ! BRUMMM BRUMMM'),nl,!.
+		write('Aku : Sekarang aku mengendarai motor !'), nl,
+		gambar(motorbebek),nl,
+		write('BRUMMM BRUMMM'),nl,!.
 	ride :-
 		\+at(motor,Place),
 		i_am_at(Place),
@@ -1491,3 +1493,19 @@
 		write(': | <-------------------------------------------------------> | :'), nl,
 		write(': + - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - + :'), nl,
 		write('-----------------------------------------------------------------'), nl.
+	
+	gambar(motorbebek):-
+		write('                                     ,-~ |'), nl,
+		write('        ________________          o==]___|'), nl,
+		write('       |                |            \\ \\'), nl,
+		write('       |________________|            /\\ \\'), nl,
+		write('  __  /  _,-----._      )           |  \\ \\.'), nl,
+		write(' |_||/_-~         `.   /()          |  /|]_|_____'), nl,
+		write('   |//              \\ |              \\/ /_-~     ~-_'), nl,
+		write('   //________________||              / //___________\\'), nl,
+		write('  //__|______________| \\____________/ //___/-\\ \\~-_'), nl,
+		write(' ((_________________/_-o___________/_//___/  /\\,\\  \\'), nl,
+		write('  |__/(  ((====)o===--~~                 (  ( (o/)  )'), nl,
+		write('       \\  ``==` /                         \\  `--`  /'), nl,
+		write('        `-.__,-`                           `-.__,-`'), nl.
+

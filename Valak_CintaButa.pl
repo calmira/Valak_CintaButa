@@ -579,7 +579,7 @@
 		Y is X+1,
 		retract(reputasi(X)),
 		assertz(reputasi(Y)),
-		write('Ikan : ').
+		write('Ikan : BLUB BLUB BLUB:)').
 	give(ikan,Something) :-
 		i_am_at(kolam),
 		write('Ikan : Blubub blubub blubub'),nl,!.

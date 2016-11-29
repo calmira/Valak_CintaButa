@@ -173,14 +173,16 @@
 /* Sidequest */
 	completesidequest(A,B,C) :-
 		assertz(completed(A)),
-		reputasi(H),
-		I is H+B,
 		retract(reputasi(H)),
+		I is H+B,
 		assertz(reputasi(I)),
-		duit(F),
-		G is F+C,
+		retract(sidequest(mama_eka,D)),
+		E is D-1,
+		assertz(sidequest(mama_eka,E)),
 		retract(duit(F)),
-		assertz(duit(G)),!.
+		G is F+C,
+		assertz(duit(G)).
+	
 		
 /* Objects */		
 	object(kunci_motor).
@@ -209,7 +211,6 @@
 	object(laci_bekas).
 	object(meja).
 	object(kursi).
-	object(parcel).
 	object(pulsa).
 	object(baju).
 	object(kosmetik).
@@ -258,13 +259,9 @@
 /* Use : hanya untuk objek aktif*/
 	use(kompor) :-
 		i_am_at(dapur),
-		\+completed(bantu_mama),
+		sidequest(mama_eka,1),
 		at(bahan_makanan,in_hand),
 		completesidequest(bantu_mama,3,5000),
-		sidequest(mama_eka,D),
-		E is D-1,
-		retract(sidequest(mama_eka,D)),
-		assertz(sidequest(mama_eka,E)),
 		retract(at(bahan_makanan,in_hand)),
 		write('Mama Eka : Kamu benar-benar calon mantu yang baik ya!'), nl,
 		write('Mama Eka : Sebagai rasa terima kasih, nih tante kasih 5000'),nl,nl,
@@ -273,7 +270,7 @@
 		
 	use(kompor) :-
 		i_am_at(dapur),
-		\+completed(bantu_mama),
+		sidequest(mama_eka,1),
 		write('Waduh.. bahan makanannya belum ada.'), nl,!.
 		
 	use(kompor) :-
@@ -492,7 +489,7 @@
 		completesidequest(sedekah,2,0),
 		retract(at(makanan,in_hand)),
 		write('Pengemis : Wah.. Adek baik sekali.. Terima kasih ya..'), nl,nl,
-		write('Sidequest Sedekah selesai!'),nl,fail,!.
+		write('Sidequest Sedekah selesai!'), nl,!.
 		
 	give(mama_eka,obat_tidur) :-
 		i_am_at(dapur),
@@ -500,20 +497,7 @@
 		retract(at(obat_tidur,in_hand)),
 		write('Mama Eka : Wah, kamu tahu saja saya tidak bisa tidur dari kemarin.. Terima kasih obat tidurnya.'),nl,
 		write('Mama Eka pun tertidur karena meminum obat tidur yang kamu berikan'), nl,
-		retract(bangun(mama_eka)),fail,!.
-		
-	give(tetangga,parcel) :-
-		\+completed(kerja),
-		i_am_at(banda),
-		at(parcel,in_hand),
-		retract(at(parcel,in_hand)),
-		write('Tetangga : Wah, terima kasih banyak yaa...'),nl,
-		write('Ini uang untukmu, sebesar 20000'),nl,
-		sidequest(boss,D),
-		E is D-1,
-		retract(sidequest(boss,D)),
-		assertz(sidequest(boss,E)),
-		completesidequest(kerja,10,20000),!.
+		retract(bangun(mama_eka)), !.
 		
 	give(Person,Something) :-
 		i_am_at(Place),
@@ -566,8 +550,8 @@
 		gambar(motorbebek),nl,
 		write('BRUMMM BRUMMM'),nl,!.
 	ride :-
-		\+at(motor,Place),
-		i_am_at(Place),
+		at(motor,Place),
+		\+i_am_at(Place),
 		write('Aku : Motorku dimana ya?'),nl,!.
 
 	ride :-
@@ -594,8 +578,8 @@
 
 /* stat */
 	stat :-
-		write('Duit : '), duit(Y), write(Y), nl,
-		write('Reputasi : '), reputasi(Q), write(Q), nl,
+		write('Duit : '), X = Y, duit(Y), write(X), nl,
+		write('Reputasi : '), P = Q, reputasi(Q), write(P), nl,
 		write('Inventaris-ku : '), nl,	notice_objects_at(in_hand),
 		write('Completed sidequest : '),nl,
 		forall(completed(A),(write(A),nl)),
@@ -653,8 +637,8 @@
 		forall(answered(Something),retract(answered(Something))),
 		forall(bangun(Person),retract(bangun(Person))),
 		forall(completed(Sidequest),retract(completed(Sidequest))),
-		forall(sidequest(A,B),retract(sidequest(A,B))),
-		forall(active(Quest),retract(active(Quest))),
+		forall(sidequest(A,B), retract(sidequest(A,B))),
+		forall(active(Quest), retract(active(Quest))),
 		assertfile(Str,C),
 		close(Str),
 		write('Game berhasil dimuat.'), nl.
@@ -703,8 +687,8 @@
 		forall((answered(Something)),(write(Str,'answered('),write(Str,Something),write(Str,').'),nl(Str))),
 		forall((notanswered(Anything)),(write(Str,'notanswered('),write(Str,Anything),write(Str,').'),nl(Str))),
 		forall((bangun(Person)),(write(Str,'bangun('),write(Str,Person),write(Str,').'),nl(Str))),
-		forall((completed(Sidequest)),(write(Str,'completed('),write(Str,Sidequest),write(Str,').'),nl(Str))),
-		forall((sidequest(A,B)),(write(Str,'sidequest('),write(Str,A),write(Str,','),write(Str,B),write(Str,').'),nl(Str))),
+		forall((completed(Sidequest)),(write(Str,'completed('), write(Str,Sidequest), write(Str,').'), nl(Str))),
+		forall((sidequest(A,B)),(write(Str,'sidequest('),write(Str,A),write(Str,','),write(Str,B),write(Str,').'), nl(Str))),
 		forall((active(Act)),(write(Str,'active('),write(Str,Act),write(Str,').'),nl(Str))),
 		write(Str,'('),
 		write(Str,'\''),
@@ -790,7 +774,6 @@
 		resetitem,
 		forall(notanswered(Anything),retract(notanswered(Anything))),
 		forall(answered(Something),retract(answered(Something))),
-		forall(completed(Sidequest),retract(completed(Sidequest))),
 		assertz(notanswered(depositbox)),
 		assertz(notanswered(sopir)),
 		assertz(notanswered(tukangkebun)).
@@ -986,15 +969,14 @@
         nl.
 		
 /* Rules yang mendeskripsikan ASKMONEY */
-
-	askmoney(boss) :-
-		\+completed(kerja),
-		assertz(sidequest(boss,1)),
-		assertz(active(kerja)),
-		i_am_at(restaurant),
-		assertz(at(parcel,in_hand)),
-		write('Boss : Wah kamu tidak boleh minta-minta uang dengan cara seperti ini, bagaimana jika kamu membantu saya mengirim parcel ?'),nl,
-		write('Sidequest Kerja : Ayo bekerja untuk boss restaurant, kirim parcel yang sudah ada di tanganmu ke tetangga di Jalan Banda.'),nl,!.
+	
+	askmoney(ikan) :-
+		i_am_at(kolam),
+		write('Aku sepertinya sudah gila karena cinta.'), nl, !.
+		
+	askmoney(anjing) :-
+		i_am_at(gerbang),
+		write('Aku sepertinya sudah gila karena cinta.'), nl, !.
 		
 	askmoney(X) :-
         i_am_at(Place),
@@ -1017,7 +999,13 @@
         at(X, Place),
 		write(X), write(' : Aku tidak akan memberikan sepeser pun ke orang sepertimu.'),
 		nl, !.
-
+	
+	askmoney(X) :-
+		i_am_at(Place),
+		object(X),
+		at(X,Place),
+		write('Jangan menyembah berhala. Rezeki sudah diatur Yang Maha Kuasa.'), nl,!.
+	
 	askmoney(_) :-
         write('Aku tidak melihatnya.'),
         nl.
@@ -1435,7 +1423,7 @@
 		(
 		(((Thing==depositbox),(Ans==nothing)) -> ((retract(notanswered(depositbox))),(assertz(answered(depositbox))),write('Depositbox terbuka dan berisi 40000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
 		(((Thing==sopir),(Ans==kemeja)) -> ((retract(notanswered(sopir))),(assertz(answered(sopir))),write('Sopir : Yaa kamu benar! Ini aku berikan uang sebesar 30000!'),nl,duit(X),(Y is (X+40000)),retract(duit(X)),assertz(duit(Y))));
-		(((Thing==tukangkebun),(Ans==8)) -> ((retract(notanswered(tukangkebun))),(assertz(answered(tukangkebun))),write('Tukang kebun : Wahh sepertinya kamu bener, ini uang buat kamu (10000)'),nl,duit(X),(Y is (X+30000)),retract(duit(X)),assertz(duit(Y))));
+		(((Thing==tukangkebun),(Ans==8)) -> ((retract(notanswered(tukangkebun))),(assertz(answered(tukangkebun))),write('Tukang kebun : Wahh sepertinya kamu bener, ini uang buat kamu 10000'),nl,duit(X),(Y is (X+30000)),retract(duit(X)),assertz(duit(Y))));
 		write('Aku : Aku rasa jawabannya salah...'),nl,!
 		).
 		
@@ -1501,7 +1489,9 @@
 		write(' ::::`:::::::`;::::::::;:::#                OO'), nl,
 		write(' `:::::`::::::::::::;;`:;::#                O'), nl,
 		write('  `:::::`::::::::;; /  / `:#'), nl,
-		write('   ::::::`:::::;;  /  /   `#'), nl.
+		write('   ::::::`:::::;;  /  /   `#'), nl, nl, nl,
+		write('By: Tim Valak'), nl,
+		write('Credits ASCII Art: www.chris.com ').
 
 	gambar(game_over2):-
 		write('                   #####                          #######                      '), nl,
@@ -1527,7 +1517,9 @@
 		write('   ;   .````  `.       `    ;     ('), nl,
 		write('   O -`        .```       .`              '), nl,
 		write('             .`   .-``````                    '), nl,
-		write('             `o-`                         '), nl.
+		write('             `o-`                         '), nl, nl, nl,
+		write('By: Tim Valak'), nl,
+		write('Credits ASCII Art: www.chris.com ').
 	
 	gambar(love):-
 		write('                        OOOOO          OOOOO'), nl,
@@ -1565,7 +1557,9 @@
 		write(' XXXXXXXXX           XXXXX                XXXXX           XXXXXXXXX'), nl,
 		write(' XXXX                 XXXXX              XXXXX                 XXXX'), nl,
 		write('  XXX                  XXXXX            XXXXX                  XXX'), nl,
-		write('                        XXXX            XXXX'), nl.
+		write('                        XXXX            XXXX'), nl, nl, nl,
+		write('By: Tim Valak'), nl,
+		write('Credits ASCII Art: www.chris.com '), nl.
 
 	gambar(foto_eka):-
 		write('-----------------------------------------------------------------'), nl,

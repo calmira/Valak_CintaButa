@@ -11,6 +11,7 @@
 :- dynamic(bangun/1).
 :- dynamic(sidequest/2).
 :- dynamic(completed/1).
+:- dynamic(saldo_habis/0).
 
 /* current state */
 	i_am_at(kos).
@@ -172,7 +173,7 @@
 		assertz(sidequest(mama_eka,E)),
 		retract(duit(F)),
 		G is F+C,
-		assertz(duit(G)),
+		assertz(duit(G)).
 	
 		
 /* Objects */		
@@ -280,12 +281,21 @@
 
 	use(atm) :-
 		i_am_at(bank),
+		saldo_habis,
+		write('Saldo di akun Anda sudah habis.'),
+		nl, !.
+	
+	use(atm) :-
+		i_am_at(bank),
 		retract(duit(Y)),
 		Z is (Y+1000),
 		assertz(duit(Z)),
+		assertz(saldo_habis),
 		write('Penarikan uang berhasil.'), nl,
 		write('Saldo di akun Anda sudah habis.'),
 		nl, !.
+	
+	
 
 	use(motor) :-
 		examine(motor).
@@ -1058,7 +1068,8 @@
 	
 	examine(atm) :-
 		i_am_at(bank),
-		write('Aku bisa mengambil uang disini'),nl.
+		write('ATM ini pecahan 1000'), nl,
+		write('Aku : Aku hanya bisa mengambil uang disini satu kali'),nl.
 		
 	examine(mobil) :-
 		i_am_at(gerbang),

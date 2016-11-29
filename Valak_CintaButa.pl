@@ -355,6 +355,10 @@
 	
 	
 /* These rules describe how to pick up an object. */
+	take(diary) :-
+		i_am_at(kamar_eka),
+		write('Jangan mengingini milik sesamamu.'),nl,!.
+		
 	take(bunga) :-
 		i_am_at(kebun),
 		write('Tukang Kebun : Heh! Jangan merusak kebunku.'), nl,
@@ -630,7 +634,7 @@
 		write('Reputasi : '), reputasi(P), write(P), nl,
 		write('Inventaris-ku : '), nl,	notice_objects_at(in_hand),
 		write('Sidequest : '),nl,
-		forall(active(A),(write(A),nl)),
+		forall(active(A),(write('   > '),write(A),nl)),
 		!.
 /* Instructions */
 	instructions :-
@@ -645,7 +649,7 @@
 		write('talk(Npc).                    : mengajak NPC berbicara'), nl,
 		write('askmoney(Npc).                : meminta uang dari NPC'), nl,
 		write('give(Npc,Object)              : memberikan barang ke NPC'), nl,
-		write('answer(Object)                : menjawab teka-teki yang berasal dari objek'), nl,
+		write('answer(Object/Npc)            : menjawab teka-teki yang berasal dari objek'), nl,
 		write('ride.                         : mengendarai motor'), nl,
 		write('tunggu.                       : menunggu Eka pulang dari berbelanja'), nl,
 		write('stat.                         : menampilkan atribut'), nl,
@@ -775,14 +779,16 @@
 		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)),
-		write('Completed Sidequest : ')
-		.
+		write('Completed Sidequest : '),
+		forall(completed(X),(write('   > '),write(X),nl)).
 		
 	gagal :-
 		write('Malangnya nasibku.'), nl,
 		quit,
 		retract(quitgame(false)),
-		assertz(quitgame(true)).
+		assertz(quitgame(true)),
+		write('Completed Sidequest : '),
+		forall(completed(X),(write('   > '),write(X),nl)).
 		
 	resetitem :-
 		forall((object(Object),at(Object,Place)),retract(at(Object,Place))),
@@ -1036,7 +1042,6 @@
 		assertz(at(parcel,in_hand)),
 		write('Boss : Wah kamu tidak boleh minta-minta uang dengan cara seperti ini, bagaimana jika kamu membantu saya mengirim parcel ?'),nl,nl,
 		write('Sidequest Kerja : Ayo bekerja untuk boss restaurant, kirim parcel yang sudah ada di tanganmu ke tetangga di Jalan Banda.'),nl,!.
->>>>>>> 64940e5199e3c92c6df390355eb38d716ec34889
 		
 	askmoney(X) :-
         i_am_at(Place),
@@ -1094,8 +1099,7 @@
 		assertz(at(penyiram_tanaman,in_hand)),
 		write('Sidequest Siram Bunga : Bantulah tukang kebun menyiram bunga.'),nl,!.
 	dialog(boss) :-
-		write('Boss : Apa? Kamu mau kerja disini? Hahaha...'),nl,
-		write('Kamu mulai hari ini. Buruan! Time is money. '),nl.
+		write('Boss : Haloo, silakan silakan dibeli makanannya.'),nl.
 	dialog(mama_eka) :-
 		sidequest(mama_eka,0),
 		write('Mama Eka : Hai nak, kamu lagi mencari Eka?'),nl.
@@ -1265,6 +1269,7 @@
 		write('Laci ini sudah lapuk dimakan rayap.'),nl,!.
 	examine(laci_bekas) :-
 		assertz(sidequest(laci_bekas,1)),
+		assertz(active(foto_eka)),
 		i_am_at(gudang),
 		gambar(foto_eka),nl,
 		write('Aku : Wah ada foto Eka. Disini dia manis sekali <3'),nl,

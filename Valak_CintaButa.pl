@@ -38,12 +38,11 @@
 	path(banda, s, lombok) :-
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(banda, s, lombok).	
 	path(banda, w, aceh).
 	path(restaurant, s, gerbang) :- at(motor, in_hand).
+	path(restaurant, s, gerbang) :- at(motor, gerbang).
 	path(restaurant, s, gerbang) :-
 		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(restaurant, w, banda).
@@ -51,42 +50,38 @@
 	path(kos, e, lombok) :-
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(kos, e, lombok).	
 	path(lombok, n, banda).
-	path(lombok, e, gerbang):-at(motor, in_hand).
+	path(lombok, e, gerbang) :- at(motor, in_hand).
+	path(lombok, e, gerbang) :- at(motor, gerbang).
 	path(lombok, e, gerbang):-
 		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
 	path(lombok, w, kos).
 	path(gerbang, n, restaurant).
 	path(gerbang, e, dapur) :- \+at(motor,in_hand).
 	path(gerbang, e, dapur) :-
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,!.
 	
 	path(gerbang, s, kebun) :- 	\+at(motor,in_hand).
 	path(gerbang, s, kebun) :- 	
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,!.
 	
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(gerbang, w, lombok):-
 		at(motor,in_hand),
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
-		write('Malangnya nasibku.'),nl, write('Game Over'),
-		retract(quitgame(false)),
-		assertz(quitgame(true)), fail.
+		gagal.
 	path(gerbang, w, lombok).
 	path(dapur, u, loteng).
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, fail,!.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, !.
+
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
 	path(kamar_ortu, s, kamar_eka).
@@ -100,7 +95,8 @@
 	path(kamar_eka, n, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(kamar_eka, n, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, fail,!.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, !.
+
 	path(kolam, n, kebun).
 	path(kamar_eka, d, basement).
 	path(basement, u, kamar_eka).
@@ -199,6 +195,13 @@
 	ringan(makanan_ikan).
 	ringan(penerjemah).
 	ringan(air).
+	
+/* Harga barang */
+	price(sabun,2000).
+	price(obat_tidur,5000).
+	price(raket,100000).
+	price(bola_tenis,50000).
+	price(makanan,25000).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
@@ -307,8 +310,9 @@
 		at(Item,minimarket),
 		i_am_at(minimarket),
 		duit(X),
-		(((Item==sabun),(X>=2000),(Y is (X-2000)));((X>=100000),(Item==raket),(Y is (X-100000)));((X>=50000),(Item=bola_tenis),(Y is (X-50000)));
-		((Item==obat_tidur),(X>=5000),(Y is (X-5000)))),
+		price(Item,Z),
+		X>=Z,
+		Y is (X-Z),
 		retract(duit(X)),
 		assertz(duit(Y)),
 		retract(at(Item,minimarket)),
@@ -318,28 +322,24 @@
 	buy(Item) :-
 		at(Item,minimarket),
 		i_am_at(minimarket),
-		duit(X),
-		((((Item==sabun),(X < 2000)) -> write('Uangnya tidak cukup.'));
-		(((Item==raket),(X < 100000)) -> write('Uangnya tidak cukup.'));
-		(((Item==bola_tenis),(X < 50000)) -> write('Uangnya tidak cukup.'));
-		(((Item==obat_tidur),(X < 5000)) -> write('Uangnya tidak cukup'))),nl,!.
+		write('Uangnya tidak cukup.'), nl,!.
 		
 	buy(Item) :-
 		at(Item,restaurant),
 		i_am_at(restaurant),
 		duit(X),
-		((Item==makanan),(X>=25000),(Y is (X-25000))),
+		price(Item,Z),
+		X>=Z,
+		Y is (X-Z),
 		retract(duit(X)),
 		assertz(duit(Y)),
-		retract(at(Item,restaurant)),
 		assertz(at(Item,in_hand)),
 		write('Boss : Makasih .. Makasih.. Sering-sering dateng ya!'),nl,!.
 		
 	buy(Item) :-
 		at(Item,restaurant),
 		i_am_at(restaurant),
-		duit(X),
-		((Item==makanan),(X < 25000)) -> write('Uangnya tidak cukup.'),nl,!.
+		write('Uangnya tidak cukup'),nl,!.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.
@@ -829,14 +829,22 @@
         i_am_at(Place),
         npc(X),
         at(X, Place),
-		retract(duit(Y)),
 		retract(reputasi(R)),
-		Z is (Y+100),
+		R>0,
+		retract(duit(Y)),
+		Z is (Y+100*R),
 		S is (R-1),
 		assertz(duit(Z)),
 		assertz(reputasi(S)),
 		write(X), write(' : Nih..'), nl,
 		write('Aku : Wah, terimakasih banyak..'),
+		nl, !.
+		
+	askmoney(X) :-
+		i_am_at(Place),
+        npc(X),
+        at(X, Place),
+		write(X), write(' : Aku tidak akan memberikan sepeser pun ke orang sepertimu.'),
 		nl, !.
 
 	askmoney(_) :-

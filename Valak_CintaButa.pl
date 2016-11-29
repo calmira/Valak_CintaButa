@@ -596,6 +596,7 @@
 		write('talk(Npc).                    : mengajak NPC berbicara'), nl,
 		write('askmoney(Npc).                : meminta uang dari NPC'), nl,
 		write('give(Npc,Object)              : memberikan barang ke NPC'), nl,
+		write('answer(Object)                : menjawab teka-teki yang berasal dari objek'), nl,
 		write('ride.                         : mengendarai motor'), nl,
 		write('tunggu.                       : menunggu Eka pulang dari berbelanja'), nl,
 		write('stat.                         : menampilkan atribut'), nl,

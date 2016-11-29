@@ -12,6 +12,7 @@
 :- dynamic(sidequest/2).
 :- dynamic(completed/1).
 :- dynamic(active/1).
+:- dynamic(saldo_habis/0).
 
 /* current state */
 	i_am_at(kos).
@@ -87,7 +88,6 @@
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-
 		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl,fail,!.
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
@@ -163,14 +163,14 @@
 	npc(sopir).
 	
 /* Sidequest */
-	completesidequest(A,B,C) :-
+	completesidequest(Z,A,B,C) :-
 		assertz(completed(A)),
 		retract(reputasi(H)),
 		I is H+B,
 		assertz(reputasi(I)),
-		retract(sidequest(mama_eka,D)),
+		retract(sidequest(Z,D)),
 		E is D-1,
-		assertz(sidequest(mama_eka,E)),
+		assertz(sidequest(Z,E)),
 		retract(duit(F)),
 		G is F+C,
 		assertz(duit(G)),
@@ -282,12 +282,21 @@
 
 	use(atm) :-
 		i_am_at(bank),
+		saldo_habis,
+		write('Saldo di akun Anda sudah habis.'),
+		nl, !.
+	
+	use(atm) :-
+		i_am_at(bank),
 		retract(duit(Y)),
 		Z is (Y+1000),
 		assertz(duit(Z)),
+		assertz(saldo_habis),
 		write('Penarikan uang berhasil.'), nl,
 		write('Saldo di akun Anda sudah habis.'),
 		nl, !.
+	
+	
 
 	use(motor) :-
 		examine(motor).
@@ -470,6 +479,7 @@
 	give(Person,Something) :-
 		i_am_at(Place),
 		at(Person,Place),
+		npc(Person),
 		\+at(Something,in_hand),
 		write('Aku : Aku tidak punya benda itu sekarang.'),nl,!.
 		
@@ -545,8 +555,8 @@
 
 /* stat */
 	stat :-
-		write('Duit : '), X = Y, duit(Y), write(X), nl,
-		write('Reputasi : '), P = Q, reputasi(Q), write(P), nl,
+		write('Duit : '), duit(X), write(X), nl,
+		write('Reputasi : '), reputasi(P), write(P), nl,
 		write('Inventaris-ku : '), nl,	notice_objects_at(in_hand),
 		write('Sidequest : '),nl,
 		forall(active(A),(write(A),nl)),
@@ -928,8 +938,10 @@
         i_am_at(Place),
         npc(X),
         at(X, Place),
+		reputasi(R),
+		@>(R,0),
 		retract(reputasi(R)),
-		R>0,
+		duit(Y),
 		retract(duit(Y)),
 		Z is (Y+100*R),
 		S is (R-1),
@@ -944,6 +956,10 @@
         npc(X),
         at(X, Place),
 		write(X), write(' : Aku tidak akan memberikan sepeser pun ke orang sepertimu.'),
+		reputasi(A),
+		retract(reputasi(A)),
+		B is A-1,
+		assertz(reputasi(-1)),
 		nl, !.
 
 	askmoney(_) :-
@@ -1090,7 +1106,8 @@
 	
 	examine(atm) :-
 		i_am_at(bank),
-		write('Aku bisa mengambil uang disini'),nl,!.
+		write('ATM ini pecahan 1000'), nl,
+		write('Aku : Aku hanya bisa mengambil uang disini satu kali'),nl.
 		
 	examine(mobil) :-
 		i_am_at(gerbang),
@@ -1107,6 +1124,7 @@
 	examine(laci_bekas) :-
 		assertz(sidequest(laci_bekas,1)),
 		i_am_at(gudang),
+		gambar(foto_eka),nl,
 		write('Aku : Wah ada foto Eka. Disini dia manis sekali <3'),nl,
 		write('Aku : Lumayan juga ada gopek disini'),nl,nl,
 		completesidequest(foto_eka,1,500),
@@ -1342,4 +1360,21 @@
 		write(' XXXX                 XXXXX              XXXXX                 XXXX'), nl,
 		write('  XXX                  XXXXX            XXXXX                  XXX'), nl,
 		write('                        XXXX            XXXX'), nl.
-	
+
+	gambar(foto_eka):-
+		write('-----------------------------------------------------------------'), nl,
+		write(': + - \\ | / - \\ | / - \\ | / - \\ | / - \\ | / - \\ | / - \\ | / - + : '), nl,
+		write(': | <-------------------------------------------------------> | :'), nl,
+		write(': \\ :                                                       : - :'), nl,
+		write(': | :                        _               \\\\,///         : / :'), nl,
+		write(': / :                      _/_\\_   ___       \\\\|///         : | :'), nl,
+		write(': - :                       (")   /.-.\\       (")\\\\         : \\ :'), nl,
+		write(': \\ :             _        //U\\\\  |(")|      //-\\\\\\         : - :'), nl,
+		write(': | :            ( )   _   \\|_|/  /)v(\\  <#>_/|_|/\\\\        : / :'), nl,
+		write(': / :           (_` )_(`>   | |   \\/~\\/       |||\\\\\\        : | :'), nl,
+		write(': / :           (__,~_)8    |||   //_\\\\       ||| \\\\        : \\ :'), nl,
+		write(': - :     jgs      _YY_    _[|]_ /_____\\     _[|]_          : - :'), nl,
+		write(': \\ :        """""""""""""""""""""""""""""""""""""""""""    : / :'), nl,
+		write(': | <-------------------------------------------------------> | :'), nl,
+		write(': + - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - + :'), nl,
+		write('-----------------------------------------------------------------'), nl.

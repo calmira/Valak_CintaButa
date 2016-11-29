@@ -167,6 +167,12 @@
 	ringan(makanan_ikan).
 	ringan(penerjemah).
 	ringan(air).
+	
+/* Harga barang */
+	price(sabun,2000).
+	price(obat_tidur,5000).
+	price(raket,100000).
+	price(bola_tenis,50000).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
@@ -268,8 +274,11 @@
 		at(Item,minimarket),
 		i_am_at(minimarket),
 		duit(X),
-		(((Item==sabun),(X>=2000),(Y is (X-2000)));((X>=100000),(Item==raket),(Y is (X-100000)));((X>=50000),(Item=bola_tenis),(Y is (X-50000)));
-		((Item==obat_tidur),(X>=5000),(Y is (X-5000)))),
+		price(Item,Z),
+		X>=Z,
+		Y is (X-Z),
+		/*(((Item==sabun),(X>=2000),(Y is (X-2000)));((X>=100000),(Item==raket),(Y is (X-100000)));((X>=50000),(Item=bola_tenis),(Y is (X-50000)));
+		((Item==obat_tidur),(X>=5000),(Y is (X-5000)))),*/
 		retract(duit(X)),
 		assertz(duit(Y)),
 		retract(at(Item,minimarket)),

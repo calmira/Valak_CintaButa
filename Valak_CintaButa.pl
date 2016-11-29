@@ -9,6 +9,7 @@
 :- dynamic(answered/1).
 :- dynamic(notanswered/1).
 :- dynamic(bangun/1).
+:- dynamic(completed/1).
 
 /* current state */
 	i_am_at(kos).
@@ -61,11 +62,11 @@
 	path(gerbang, n, restaurant).
 	path(gerbang, e, dapur) :- \+at(motor,in_hand).
 	path(gerbang, e, dapur) :-
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,!.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
 	
 	path(gerbang, s, kebun) :- 	\+at(motor,in_hand).
 	path(gerbang, s, kebun) :- 	
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,!.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
 	
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
@@ -80,7 +81,7 @@
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, !.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'),nl,fail,!.
 
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
@@ -95,7 +96,7 @@
 	path(kamar_eka, n, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(kamar_eka, n, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'), nl, !.
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'),nl,fail,!.
 
 	path(kolam, n, kebun).
 	path(kamar_eka, d, basement).
@@ -368,6 +369,7 @@
 	give(Person,Something) :-
 		i_am_at(Place),
 		at(Person,Place),
+		npc(Person),
 		\+at(Something,in_hand),
 		write('Aku : Aku tidak punya benda itu sekarang.'),nl,!.
 		
@@ -470,7 +472,7 @@
 		write('tunggu.                       : menunggu Eka pulang dari berbelanja'), nl,
 		write('instructions.                 : melihat daftar instruksi'), nl,
 		write('save(Filename).               : menyimpan progress'), nl,
-		write('load(Filename).               : memuat progress'), nl,
+		write('loadfile(Filename).               : memuat progress'), nl,
 		write('quit.                         : mengakhiri permainan barang'), nl.
 
 /* Rules untuk Input name */

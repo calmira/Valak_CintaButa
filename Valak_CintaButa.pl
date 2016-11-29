@@ -9,12 +9,13 @@
 :- dynamic(answered/1).
 :- dynamic(notanswered/1).
 :- dynamic(bangun/1).
+:- dynamic(sidequest/2).
 :- dynamic(completed/1).
 
 /* current state */
 	i_am_at(kos).
 	quitgame(false).
-	duit(1000).
+	duit(5000).
 	reputasi(0).
 	notanswered(depositbox).
 	notanswered(sopir).
@@ -38,6 +39,7 @@
 	path(banda, e, restaurant).
 	path(banda, s, lombok) :-
 		at(motor,in_hand),
+		gambar(game_over), nl, nl,
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
 		gagal.
 	path(banda, s, lombok).	
@@ -50,6 +52,7 @@
 	path(kos, n, aceh).
 	path(kos, e, lombok) :-
 		at(motor,in_hand),
+		gambar(game_over), nl, nl,
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
 		gagal.
 	path(kos, e, lombok).	
@@ -70,10 +73,12 @@
 	
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
+		gambar(game_over), nl, nl,
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
 		gagal.
 	path(gerbang, w, lombok):-
 		at(motor,in_hand),
+		gambar(game_over), nl, nl,
 		write('Oh tidak! Aku menjadi korban serangan begal!'),nl,
 		gagal.
 	path(gerbang, w, lombok).
@@ -81,8 +86,7 @@
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'),nl,fail,!.
-
+		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl,fail,!.
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
 	path(kamar_ortu, s, kamar_eka).
@@ -96,8 +100,7 @@
 	path(kamar_eka, n, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(kamar_eka, n, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari sini!'),nl,fail,!.
-
+		write('Mama Eka: Apa yang kamu lakukan? Keluar dari situ!'), nl,fail, !.
 	path(kolam, n, kebun).
 	path(kamar_eka, d, basement).
 	path(basement, u, kamar_eka).
@@ -156,6 +159,20 @@
 	npc(gengmotor).
 	npc(anjing).
 	npc(sopir).
+	
+/* Sidequest */
+	completesidequest(A,B,C) :-
+		assertz(completed(A)),
+		retract(reputasi(H)),
+		I is H+B,
+		assertz(reputasi(I)),
+		retract(sidequest(mama_eka,D)),
+		E is D-1,
+		assertz(sidequest(mama_eka,E)),
+		retract(duit(F)),
+		G is F+C,
+		assertz(duit(G)),
+	
 		
 /* Objects */		
 	object(kunci_motor).
@@ -202,10 +219,30 @@
 	price(obat_tidur,5000).
 	price(raket,100000).
 	price(bola_tenis,50000).
-	price(makanan,25000).
+	price(makanan,10000).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
+	use(kompor) :-
+		i_am_at(dapur),
+		sidequest(mama_eka,1),
+		at(bahan_makanan,in_hand),
+		completesidequest(bantu_mama,3,5000),
+		retract(at(bahan_makanan,in_hand)),
+		write('Mama Eka : Kamu benar-benar calon mantu yang baik ya!'), nl,
+		write('Mama Eka : Sebagai rasa terima kasih, nih tante kasih 5000'),nl,nl,
+		write('Sidequest Bantu Mama selesai!'),nl,
+		!.
+		
+	use(kompor) :-
+		i_am_at(dapur),
+		sidequest(mama_eka,1),
+		write('Waduh.. bahan makanannya belum ada.'), nl,!.
+		
+	use(kompor) :-
+		i_am_at(dapur),
+		write('Aku tidak bisa memasak..'), nl,!.
+		
 	use(tempat_tidur) :-
 		i_am_at(kamar_eka),
 		write('Zzzzz... Zzz...'),nl.
@@ -249,6 +286,17 @@
 		write('Saldo di akun Anda sudah habis.'),
 		nl, !.
 
+	use(motor) :-
+		examine(motor).
+	
+	use(kunci_motor):-
+		examine(kunci_motor).
+		
+	use(X) :-
+		npc(X),
+		i_am_at(Place),
+		at(X,Place),
+		write('Memanfaatkan orang lain itu dosa'),nl.
 	use(_) :-
 		write('Barang tersebut tidak bisa digunakan.'), nl.
 	
@@ -275,7 +323,11 @@
 		at(laptop,X),
 		write('Ah.. tasku tidak muat kalau harus bawa laptop.'), nl,
 		!.
-	
+	take(air) :-
+		i_am_at(X),
+		at(laptop,X),
+		write('Aduh basah. Gak usah deh.'), nl,
+		!.
 	take(X) :-
         i_am_at(Place),
         object(X),
@@ -302,7 +354,13 @@
 		retract(reputasi(Y)),
 		assertz(reputasi(Z)),
 		write('Boss : Waduh ambil-ambil makanan dari restoran saya yaa...'),nl.
-		
+	
+	take(X) :-
+		npc(X),
+		i_am_at(Place),
+		at(X,Place),
+		write('Aku tidak bisa mengantongi makhluk hidup.'),nl.
+	
 	take(_) :-
         write('Aku tidak melihat itu di sini.'),
         nl.
@@ -341,6 +399,12 @@
 		at(Item,restaurant),
 		i_am_at(restaurant),
 		write('Uangnya tidak cukup'),nl,!.
+	
+	buy(X) :-
+		npc(X),
+		i_am_at(Place),
+		at(X,Place),
+		write('Aku merasa aneh, apa yang sedang aku lakukan?'),nl.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.
@@ -353,11 +417,27 @@
         assertz(at(X, Place)),
         write('OK. Aku tidak lagi memegang '), write(X), write('.'),
         nl.
-
+	
+	drop(makanan) :-
+		at(X, in_hand),
+        write('Sebaiknya aku tidak membuang-buang '), write(X), write('.'),
+        nl.
+	
 	drop(_) :-
         write('Bagaimana aku mau meletakkannya?? Barang tersebut saja tidak kupegang.'),
         nl.
 
+/* These rules describe how to give an object. */
+	give(pengemis,makanan) :-
+		i_am_at(X),
+		at(pengemis,X),
+		at(makanan,in_hand),
+		sidequest(pengemis,1),
+		completesidequest(sedekah,2,0),
+		retract(at(makanan,in_hand)),
+		write('Pengemis : Wah.. Adek baik sekali.. Terima kasih ya..'), nl,nl,
+		write('Sidequest Sedekah selesai!'), nl,!.
+		
 	give(mama_eka,obat_tidur) :-
 		i_am_at(dapur),
 		at(obat_tidur,in_hand),
@@ -404,7 +484,7 @@
 		(quitgame(false) -> (look,!); !).
 
 	go(_) :-
-        write('Tidak ada apa-apa disana.'),nl.
+        write('Aku tidak bisa kesana.'),nl.
 		
 /* Predikat menggunakan motor */
 	ride :-
@@ -432,7 +512,7 @@
         write('Objek yang terdapat di sini: '), nl,
         notice_objects_at(Place),
         nl.
-
+    
 /* These rules set up a loop to mention all the objects
    in your vicinity. */
 	notice_objects_at(Place) :-
@@ -443,47 +523,44 @@
 
 /* stat */
 	stat :-
-		player(Z),
 		write('Duit : '), X = Y, duit(Y), write(X), nl,
 		write('Reputasi : '), P = Q, reputasi(Q), write(P), nl,
 		write('Inventaris-ku : '), nl,	notice_objects_at(in_hand),
+		write('Completed sidequest : '),nl,
+		forall(completed(A),(write(A),nl)),
 		!.
-		
-	stat :-
-		write('Belum ada stat.'),nl,
-		fail.
-	
 /* Instructions */
 	instructions :-
 		write('Berikut instruksi yang dapat digunakan :'),nl,
 		write('start.                        : memulai permainan'), nl,
 		write('n., s., w., e., u., d.        : pindah ke arah sesuai instruksi'), nl,
-		write('take(Object).                 : mengambil barang'), nl,
-		write('drop(Object).                 : meletakkan barang'), nl,
-		write('use(Object).                  : menggunakan barang'), nl,
-		write('stat.                         : menampilkan atribut'), nl,
-		write('talk(Npc).                    : mengajak NPC berbicara'), nl,
-		write('buy(Object).                  : membeli barang'), nl,
-		write('askmoney(Npc).                : meminta uang dari NPC'), nl,
-		write('give(Object,Npc)              : memberikan barang ke NPC'), nl,
 		write('examine(Object).              : memeriksa barang'), nl,
+		write('take(Object).                 : mengambil barang'), nl,
+		write('use(Object).                  : menggunakan barang'), nl,
+		write('buy(Object).                  : membeli barang'), nl,
+		write('drop(Object).                 : meletakkan barang'), nl,
+		write('talk(Npc).                    : mengajak NPC berbicara'), nl,
+		write('askmoney(Npc).                : meminta uang dari NPC'), nl,
+		write('give(Npc,Object)              : memberikan barang ke NPC'), nl,
 		write('ride.                         : mengendarai motor'), nl,
-		write('look.                         : melihat sekeliling'), nl,
 		write('tunggu.                       : menunggu Eka pulang dari berbelanja'), nl,
+		write('stat.                         : menampilkan atribut'), nl,
+		write('look.                         : melihat sekeliling'), nl,
 		write('instructions.                 : melihat daftar instruksi'), nl,
 		write('save(Filename).               : menyimpan progress'), nl,
-		write('loadfile(Filename).               : memuat progress'), nl,
-		write('quit.                         : mengakhiri permainan barang'), nl.
+		write('loadfile(Filename).           : memuat progress'), nl,
+		write('quit.                         : mengakhiri permainan'), nl.
 
 /* Rules untuk Input name */
 	inputnama :-
-		write('Halo!! Sebelum memulai permainan, masukkan terlebih dahulu nama anda :'),
+		gambar(judul_game), nl, nl,
+		write('Halo!! Sebelum memulai permainan, masukkan terlebih dahulu nama anda (lowercase):'),
 		nl,
 		read(X),
 		assertz(player(X)),
-		write('Halo, '),
+		write('Namaku '),
 		write(X),
-		write('!'),
+		write('.'),
 		nl.
 
 /* Rules untuk File Eksternal */
@@ -562,7 +639,6 @@
 /* Starting game */
 	start :-
 		inputnama,
-		write('Selamat datang di game Cinta Buta!'), nl,
 		write('Huft.. Beberapa hari lagi aku dan pacarku, Eka, '), nl,
 		write('akan merayakan anniv yang ke-5.'), nl,
 		write('Kami bersepakat bahwa kami akan melakukan tukar kado.'), nl,
@@ -585,14 +661,13 @@
 /* Akhir game */
 	berhasil :-
 		write('Beruntungnya nasibku.'), nl,
-		write('Game Over.'), nl,
+		write('The End.'), nl,
 		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
 		
 	gagal :-
 		write('Malangnya nasibku.'), nl,
-		write('Game Over.'), nl,
 		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)).
@@ -866,14 +941,27 @@
 		write('Boss : Apa? Kamu mau kerja disini? Hahaha...'),nl,
 		write('Kamu mulai hari ini. Buruan! Time is money. '),nl.
 	dialog(mama_eka) :-
+		sidequest(mama_eka,0),
 		write('Mama Eka : Hai nak, kamu lagi mencari Eka?'),nl.
+	dialog(mama_eka) :-
+		assertz(sidequest(mama_eka,1)),
+		write('Mama Eka : Eeh apa kabar? Tante lagi masak nih..'),nl,
+		write('Aku : Waah kelihatannya enak. Boleh kubantu Tan?'), nl,
+		write('Mama Eka : Okee ini resepnya. Bahan makanan ada di kulkas.'),nl,nl,
+		write('Sidequest Bantu Masak : Bantulah Mama Eka memasak.'),nl,!.
 	dialog(oma_eka) :-
 		write('Oma Eka : Nenek sudah tua, cu...'), nl.
 	dialog(tetangga) :-
-		write('Tetangga : Hai, '), write(X),player(X), write('! Aduh akhir-akhir ini'), nl,
+		write('Tetangga : Hai, '), player(X),write(X), write('! Aduh akhir-akhir ini'), nl,
 		write('lagi banyak tindakan kriminal, bikin saya resah saja...').
 	dialog(pengemis) :-
-		write('Pengemis : Dek... Kasihan, dek... Belum makan Mcd tiga hari...').
+		sidequest(pengemis,0),
+		write('Pengemis : Hari yang cerah ya Dek..').
+	dialog(pengemis) :-
+		assertz(sidequest(pengemis,1)),
+		write('Pengemis : Dek... Kasihan, dek... Belum makan tiga hari...'),nl,
+		write('Duh kasihan sekali kakek ini.. Aku harus memberikan sesuatu.'),nl,nl,
+		write('Sidequest Sedekah : Berikan makanan pada pengemis.'),nl,!.
 	dialog(kasir) :-
 		write('Kasir : Gak sekalian pulsanya?').
 	dialog(gengmotor) :-
@@ -987,11 +1075,15 @@
 	examine(motor) :-
 		at(motor,Place),
 		i_am_at(Place),
-		write('Motor bebek kesayangan pemberian orang tua.'),nl.
-	
+		write('Motor bebek kesayangan pemberian orang tua.'),nl,
+		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
+		write('dan masukkan perintah ride ketika sedang seruangan dengan'),nl,
+		write('motor.'),nl.
+
 	examine(motor) :-
 		at(motor, in_hand),
-		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl.
+		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl,
+		write('Cara berhenti menggunakan motor, dengan perintah drop(motor).'),nl.
 	
 	examine(depositbox) :-
 		i_am_at(bank),
@@ -1012,7 +1104,12 @@
 	examine(laptop) :-
 		i_am_at(kos),
 		write('Masih mulus seperti baru, sayangnya krisis internet.'),nl.
-		
+	
+	examine(kulkas) :-
+		i_am_at(dapur),
+		sidequest(mama_eka,1),
+		assertz(at(bahan_makanan,in_hand)),
+		write('Nah ini dia bahannya..'),nl,!.
 	examine(kulkas):-
 		i_am_at(dapur),
 		write('Terdapat secarik kertas, isinya: '),nl,
@@ -1037,7 +1134,13 @@
 	examine(tempat_tidur) :-
 		i_am_at(kamar_eka),
 		write('Empuk dan nyaman sekali kasur ini. Berbeda jauh dengan kasur kosanku.'), nl.
-		
+	
+	examine(X):-
+			npc(X),
+			i_am_at(Place),
+			at(X,Place),
+			write('Tidak baik menilai seseorang dari penampilannya'),nl.
+			
     examine(_) :-
         write('Aku tidak melihat itu di sini.'),
         nl.
@@ -1047,6 +1150,7 @@
 		at(bola_tenis,in_hand),
 		write('Aku memutuskan untuk menunggu kepulangan Eka dengan bola tenis di tanganku.'), nl,
 		write('Aku berhasil memberikan kebahagiaan pada kekasihku!'), nl,
+		gambar(love),
 		berhasil.
 		
 		
@@ -1118,3 +1222,101 @@
 		
 	answer(_) :-
 		write('Kamu tidak bisa menjawab itu disini.'),nl.
+
+/* Hiasan */
+	gambar(judul_game):-
+		write('                   .d8888b.  d8b          888                  888888b.            888             '), nl,
+		write('                  d88P  Y88b Y8P          888                  888  "88b           888             '), nl,
+		write('                  888    888              888                  888  .88P           888             '), nl,
+		write('                  888        888 88888b.  888888  8888b.       8888888K.  888  888 888888  8888b.  '), nl,
+		write('                  888        888 888 "88b 888        "88b      888  "Y88b 888  888 888        "88b '), nl,
+		write('                  888    888 888 888  888 888    .d888888      888    888 888  888 888    .d888888 '), nl,
+		write('                  Y88b  d88P 888 888  888 Y88b.  888  888      888   d88P Y88b 888 Y88b.  888  888 '), nl,
+		write('                   "Y8888P"  888 888  888  "Y888 "Y888888      8888888P"   "Y88888  "Y888 "Y888888 '), nl.
+	
+	gambar(game_over):-
+		write('                   #####                          #######                      '), nl,
+		write('                  #     #   ##   #    # ######    #     # #    # ###### #####  '), nl,
+		write('                  #        #  #  ##  ## #         #     # #    # #      #    # '), nl,
+		write('                  #  #### #    # # ## # #####     #     # #    # #####  #    # '), nl,
+		write('                  #     # ###### #    # #         #     # #    # #      #####  '), nl,
+		write('                  #     # #    # #    # #         #     #  #  #  #      #   #  '), nl,
+		write('                   #####  #    # #    # ######    #######   ##   ###### #    #'), nl, nl,
+		write('               ...'), nl,
+		write('             ;::::;'), nl,
+		write('           ;::::; :;'), nl,
+		write('         ;:::::;   :;'), nl,
+		write('        ;:::::;     ;.'), nl,
+		write('       ,:::::;       ;           OOO'), nl,
+		write('       ::::::;       ;          OOOOO'), nl,
+		write('       ;:::::;       ;         OOOOOOOO'), nl,
+		write('      ,;::::::;     ;;         / OOOOOOO'), nl,
+		write('    ;:::::::::`. ,,,;.        /  / DOOOOOO'), nl,
+		write('  .;;:::::::::::::::::;,     /  /     DOOOO'), nl,
+		write(' ,::::::;::::::;;;;::::;,   /  /        DOOO'), nl,
+		write(';`::::::`;::::::;;;::::: ,#/  /          DOOO'), nl,
+		write(':`:::::::`;::::::;;::: ;::#  /            DOOO'), nl,
+		write('::`:::::::`;:::::::: ;::::# /              DOO'), nl,
+		write('`:`:::::::`;:::::: ;::::::#/               DOO'), nl,
+		write(' :::`:::::::`;; ;:::::::::##                OO'), nl,
+		write(' ::::`:::::::`;::::::::;:::#                OO'), nl,
+		write(' `:::::`::::::::::::;;`:;::#                O'), nl,
+		write('  `:::::`::::::::;; /  / `:#'), nl,
+		write('   ::::::`:::::;;  /  /   `#'), nl.
+
+	
+	gambar(love):-
+		write('                        OOOOO          OOOOO'), nl,
+		write('                       OO   OOO      OOO   OO'), nl,
+		write('                       OO     OOO  OOO     OO'), nl,
+		write('                        OOO     OOOO     OOO'), nl,
+		write('      OOOOOO          OO  OOOOOO    OOOOOO  OO          OOOOOO'), nl,
+		write('   OOOO    OOOOO   OOOO                      OOOO   OOOOO    OOOO'), nl,
+		write('               OOOOO     VVVVVV      VVVVVV     OOOOO'), nl,
+		write('                       VVVVVVVVVV  VVVVVVVVVV'), nl,
+		write('                     VVVVVVVVVVVVVVVVVVVVVVVVVV'), nl,
+		write('                     VVVVVVVVVVVVVVVVVVVVVVVVVV'), nl,
+		write('        XXXXXX       VVVVVVVVVVVVVVVVVVVVVVVVVV      XXXXXXX'), nl,
+		write('     XXXXXXXXXXX      VVVVVVVVVVVVVVVVVVVVVVVV      XXXXXXXXXXX'), nl,
+		write('    XXXXXXXXXXXXX      VVVVVVVVVVVVVVVVVVVVVV      XXXXXXXXXXXXX'), nl,
+		write('   XXXXXXXXXXXXXXXX     VVVVVVVVVVVVVVVVVVVV     XXXXXXXXXXXXXXXX'), nl,
+		write('   XXXXXXXXXXXXXXXX      VVVVVVVVVVVVVVVVVV      XXXXXXXXXXXXXXXX'), nl,
+		write('   XXXXXXXXXXXXXXXX     XXVVVVVVVVVVVVVVVVXX     XXXXXXXXXXXXXXXX'), nl,
+		write('    XXXXXXXXXXXXXXXX    XXXVVVVVVVVVVVVVVXXX    XXXXXXXXXXXXXXXX'), nl,
+		write('       XXXXXXXXXXX     XXXX VVVVVVVVVVVV XXXX     XXXXXXXXXXX'), nl,
+		write('           XXXXXXX    XXXX   VVVVVVVVVV   XXXX    XXXXXXX'), nl,
+		write('    XXXXXX  XXXXXXXXXXXXXX    VVVVVVVV    XXXXXXXXXXXXXX  XXXXXX'), nl,
+		write('  XXXXXXXXXXXXXXXXXXXXXX       VVVVVV       XXXXXXXXXXXXXXXXXXXXXX'), nl,
+		write(' XXXXXXXXXXXXXXXXXXXX           VVVV           XXXXXXXXXXXXXXXXXXXX'), nl,
+		write('XX XXXXX XXXXXXXXXXXX            VV            XXXXXXXXXXXX XXXXX XX'), nl,
+		write('X  X XX  XXXXXXXXXXXX                          XXXXXXXXXXXX  XX X  X'), nl,
+		write('     X  XXXXXXXXXXXX                            XXXXXXXXXXXX  X'), nl,
+		write('       XXXXXXXXXXXXX                            XXXXXXXXXXXXX'), nl,
+		write('       XXXXXXXXXXXXXX                          XXXXXXXXXXXXXX'), nl,
+		write('       XXXXXXXXXXXXXXX                        XXXXXXXXXXXXXXX'), nl,
+		write('        XXXXXXXXXXXXXXX                      XXXXXXXXXXXXXXX'), nl,
+		write('       XXXXXXX  XXXXXXXX                    XXXXXXXX  XXXXXXX'), nl,
+		write('      XXXXXXX     XXXXXXX                  XXXXXXX     XXXXXXX'), nl,
+		write(' XXXXXXXXXXX        XXXXXX                XXXXXX        XXXXXXXXXXX'), nl,
+		write(' XXXXXXXXX           XXXXX                XXXXX           XXXXXXXXX'), nl,
+		write(' XXXX                 XXXXX              XXXXX                 XXXX'), nl,
+		write('  XXX                  XXXXX            XXXXX                  XXX'), nl,
+		write('                        XXXX            XXXX'), nl.
+
+	gambar(foto_eka):-
+		write('-----------------------------------------------------------------'), nl,
+		write(': + - \\ | / - \\ | / - \\ | / - \\ | / - \\ | / - \\ | / - \\ | / - + : '), nl,
+		write(': | <-------------------------------------------------------> | :'), nl,
+		write(': \\ :                                                       : - :'), nl,
+		write(': | :                        _               \\\\,///         : / :'), nl,
+		write(': / :                      _/_\\_   ___       \\\\|///         : | :'), nl,
+		write(': - :                       (")   /.-.\\       (")\\\\         : \\ :'), nl,
+		write(': \\ :             _        //U\\\\  |(")|      //-\\\\\\         : - :'), nl,
+		write(': | :            ( )   _   \\|_|/  /)v(\\  <#>_/|_|/\\\\        : / :'), nl,
+		write(': / :           (_` )_(`>   | |   \\/~\\/       |||\\\\\\        : | :'), nl,
+		write(': / :           (__,~_)8    |||   //_\\\\       ||| \\\\        : \\ :'), nl,
+		write(': - :     jgs      _YY_    _[|]_ /_____\\     _[|]_          : - :'), nl,
+		write(': \\ :        """""""""""""""""""""""""""""""""""""""""""    : / :'), nl,
+		write(': | <-------------------------------------------------------> | :'), nl,
+		write(': + - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - + :'), nl,
+		write('-----------------------------------------------------------------'), nl.

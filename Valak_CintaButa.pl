@@ -146,6 +146,14 @@
     at(ikan, kolam).
     at(makanan_ikan, kolam).
     at(kunci_diary, basement).
+    at(pulsa, minimarket).
+    at(baju, minimarket).
+    at(kosmetik, minimarket).
+    at(rokok, minimarket).
+    at(makanan_ringan, minimarket).
+    at(sikat_gigi, minimarket).
+    at(sandal, minimarket).
+	at(sepatu_hak, minimarket).
 
 /* NPCs */
 	npc(ikan).
@@ -202,6 +210,14 @@
 	object(laci_bekas).
 	object(meja).
 	object(kursi).
+	object(pulsa).
+	object(baju).
+	object(kosmetik).
+	object(rokok).
+	object(makanan_ringan).
+	object(sikat_gigi).
+	object(sandal).
+	object(sepatu_hak).
 		
 	ringan(kunci_motor).
 	ringan(sabun).
@@ -214,6 +230,14 @@
 	ringan(makanan_ikan).
 	ringan(penerjemah).
 	ringan(air).
+	ringan(pulsa).
+	ringan(baju).
+	ringan(kosmetik).
+	ringan(rokok).
+	ringan(makanan_ringan).
+	ringan(sikat_gigi).
+	ringan(sandal).
+	ringan(sepatu_hak).
 	
 /* Harga barang */
 	price(sabun,2000).
@@ -221,6 +245,14 @@
 	price(raket,100000).
 	price(bola_tenis,50000).
 	price(makanan,10000).
+	price(pulsa,5000).
+	price(baju,20000).
+	price(kosmetik,100000).
+	price(rokok,10000).
+	price(makanan_ringan,3000).
+	price(sikat_gigi,4000).
+	price(sandal,8000).
+	price(sepatu_hak,90000).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
@@ -422,6 +454,14 @@
 		write('Barang ini tidak bisa dibeli.'),nl.
         
 /* These rules describe how to put down an object. */
+	drop(X) :-
+		i_am_at(minimarket),
+		write('Aku tidak mau meninggalkan barang sembarangan.'), nl, !.
+	
+	drop(X) :-
+		i_am_at(restaurant),
+		write('Aku tidak mau meninggalkan barang sembarangan.'), nl, !.
+	
 	drop(X) :-
         at(X, in_hand),
         i_am_at(Place),
@@ -989,7 +1029,8 @@
 
 /* Rules untuk examine */
     examine(kunci_motor) :- 
-		i_am_at(kos),
+		i_am_at(Place),
+		at(kunci_motor, Place),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
 		write('dan masukkan perintah ride ketika sedang seruangan dengan'), nl,
 		write('motor.'),nl.
@@ -1002,58 +1043,89 @@
 		
 	examine(sabun):-
 		i_am_at(minimarket),
-		write('Sabun yang wangi ini seharga 2000'), nl.
+		write('Sabun yang wangi ini seharga 2000'), nl,!.
 	
 	examine(sabun):-
 		at(sabun, in_hand),
 		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl.
 	
+	examine(sabun):-
+		i_am_at(Place),
+		at(sabun, Place),
+		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl.
+	
 	examine(obat_tidur):-
 		i_am_at(minimarket),
-		write('Obat tidur cap gajah mabok seharga 5000'), nl.
+		write('Obat tidur cap gajah mabok seharga 5000'), nl,!.
 		
 	examine(obat_tidur):-
 		at(obat_tidur, in_hand),
 		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl.
 	
+	examine(obat_tidur):-
+		i_am_at(Place),
+		at(obat_tidur, Place),
+		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl.
+	
 	examine(raket):-
 		i_am_at(minimarket),
-		write('Raket seharga 100000.'), nl.
+		write('Raket seharga 100000.'), nl,!.
 	
 	examine(raket):-
 		at(raket, in_hand),
 		write('Raket yenox berkualitas tinggi.'), nl.
 	
+	examine(raket):-
+		i_am_at(Place),
+		at(raket, Place),
+		write('Raket yenox berkualitas tinggi.'), nl.
+	
 	examine(bola_tenis):-
 		i_am_at(minimarket),
-		write('Bola tenis ini seharga 50000.'), nl.
+		write('Bola tenis ini seharga 50000.'), nl,!.
 	
 	examine(bola_tenis):-
 		at(bola_tenis, in_hand),
 		write('Mainan favorit para anjing.'), nl.
 	
+	examine(bola_tenis):-
+		i_am_at(Place),
+		at(bola_tenis, Place),
+		write('Mainan favorit para anjing.'), nl.
+	
 	examine(kunci_diary):-
 		i_am_at(basement),
-		write('Kunci apa ya ini? Tampak baru dan mengkilap.'), nl.
+		write('Kunci apa ya ini? Tampak baru dan mengkilap.'), nl,!.
 	
 	examine(kunci_diary):-
 		at(kunci_diary, in_hand),
 		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl.
+	
+	examine(kunci_diary):-
+		i_am_at(Place),
+		at(kunci_diary, Place),
+		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl.
 		
 	examine(makanan):-
 		i_am_at(restaurant),
-		write('Makanan ini seharga 25000.'),nl.
+		write('Makanan ini seharga 25000.'),nl,!.
 		
 	examine(makanan):-
 		at(makanan,in_hand),
 		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl.
+	
+	examine(makanan):-
+		i_am_at(Place),
+		at(makanan,Place),
+		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl.
 		
 	examine(bunga) :-
-		i_am_at(kebun),
+		i_am_at(Place),
+		at(bunga,Place),
 		write('Bunga-bunga yang cantik, dibesarkan seperti anak sendiri.'),nl.
 	
 	examine(bunga) :-
-		i_am_at(kebun),
+		at(bunga, in_hand),
 		write('Setangkai bunga untuk mencerahkan hati orang yang spesial.'),nl.
 	
 	examine(makanan_ikan) :-
@@ -1151,7 +1223,95 @@
 	examine(tempat_tidur) :-
 		i_am_at(kamar_eka),
 		write('Empuk dan nyaman sekali kasur ini. Berbeda jauh dengan kasur kosanku.'), nl.
+		
+	examine(pulsa):-
+		i_am_at(minimarket),
+		write('Pulsa berbagai operator seharga 5000.'), nl,!.
+	examine(pulsa):-
+		i_am_at(Place),
+		at(pulsa, Place),
+		write('Akhirnya aku bisa mengisi pulsa.'), nl.
+	examine(pulsa):-
+		at(pulsa, in_hand),
+		write('Akhirnya aku bisa mengisi pulsa.'), nl.
+		
+	examine(baju):-
+		i_am_at(minimarket),
+		write('Baju diskon seharga 20000.'), nl,!.
+	examine(baju):-
+		i_am_at(Place),
+		at(baju, Place),
+		write('Baju ini bagus dan bisa dipakai oleh pria maupun wanita.'), nl.
+	examine(baju):-
+		at(baju, in_hand),
+		write('Baju ini bagus dan bisa dipakai oleh pria maupun wanita.'), nl.
 	
+	examine(kosmetik):-
+		i_am_at(minimarket),
+		write('Kosmetik KW super seharga 100000.'), nl,!.
+	examine(kosmetik):-
+		i_am_at(Place),
+		at(kosmetik, Place),
+		write('Walaupun kosmetik KW namun kelihatan seperi asli'), nl.
+	examine(kosmetik):-
+		at(kosmetik, in_hand),
+		write('Walaupun kosmetik KW namun kelihatan seperi asli'), nl.
+		
+	examine(rokok):-
+		i_am_at(minimarket),
+		write('Rokok Dbenang seharga 10000.'), nl,!.
+	examine(rokok):-
+		i_am_at(Place),
+		at(rokok, Place),
+		write('Sebaiknya aku tidak merokok karena tidak baik untuk kesehatan.'), nl.
+	examine(rokok):-
+		at(rokok, in_hand),
+		write('Sebaiknya aku tidak merokok karena tidak baik untuk kesehatan.'), nl.
+	
+	examine(makanan_ringan):-
+		i_am_at(minimarket),
+		write('Makanan ringan seharga 3000.'), nl,!.
+	examine(makanan_ringan):-
+		i_am_at(Place),
+		at(makanan_ringan, Place),
+		write('Makanan ringan ini enak.'), nl.
+	examine(makanan_ringan):-
+		at(makanan_ringan, in_hand),
+		write('Makanan ringan ini enak.'), nl.
+	
+	examine(sikat_gigi):-
+		i_am_at(minimarket),
+		write('Sikat gigi seharga 4000.'), nl, !.
+	examine(sikat_gigi):-
+		i_am_at(Place),
+		at(sikat_gigi, Place),
+		write('Sikat gigi baru bisa kugunakan sehari-hari.'), nl.
+	examine(sikat_gigi):-
+		at(sikat_gigi, in_hand),
+		write('Sikat gigi baru bisa kugunakan sehari-hari.'), nl.
+		
+	examine(sandal):-
+		i_am_at(minimarket),
+		write('Sandal seharga 8000.'), nl, !.
+	examine(sandal):-
+		i_am_at(Place),
+		at(sandal, Place),
+		write('Walaupun harganya murah, sandal ini tampak bagus dan awet.'), nl.
+	examine(sandal):-
+		at(sandal, in_hand),
+		write('Walaupun harganya murah, sandal ini tampak bagus dan awet.'), nl.
+		
+	examine(sepatu_hak):-
+		i_am_at(minimarket),
+		write('Sepatu hak 20 cm seharga 90000'), nl,!.
+	examine(sepatu_hak):-
+		i_am_at(Place),
+		at(sepatu_hak, Place),
+		write('Semua wanita pasti menyukai sepatu hak ini.'), nl.
+	examine(sepatu_hak):-
+		at(sepatu_hak, in_hand),
+		write('Semua wanita pasti menyukai sepatu hak ini.'), nl.
+		
 	examine(X):-
 			npc(X),
 			i_am_at(Place),

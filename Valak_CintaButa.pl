@@ -61,16 +61,16 @@
 	path(lombok, e, gerbang) :- at(motor, in_hand).
 	path(lombok, e, gerbang) :- at(motor, gerbang).
 	path(lombok, e, gerbang):-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,!.
 	path(lombok, w, kos).
 	path(gerbang, n, restaurant).
 	path(gerbang, e, dapur) :- \+at(motor,in_hand).
 	path(gerbang, e, dapur) :-
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,!,fail.
 	
 	path(gerbang, s, kebun) :- 	\+at(motor,in_hand).
 	path(gerbang, s, kebun) :- 	
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,!,fail.
 	
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
@@ -389,6 +389,7 @@
 		write('Kasir : Terima kasih sudah berbelanja, sampai jumpa!'),nl,!.
 		
 	buy(Item) :-
+		object(Item),
 		at(Item,minimarket),
 		i_am_at(minimarket),
 		write('Uangnya tidak cukup.'), nl,!.
@@ -406,6 +407,7 @@
 		write('Boss : Makasih .. Makasih.. Sering-sering dateng ya!'),nl,!.
 		
 	buy(Item) :-
+		object(Item),
 		at(Item,restaurant),
 		i_am_at(restaurant),
 		write('Uangnya tidak cukup'),nl,!.
@@ -900,12 +902,16 @@
 
 	talk(X) :-
         i_am_at(Place),
-        npc(X),
+        npc(X),\+answered(X),
 		clue(X), nl,
+        at(X, Place),
+        nl, !.
+	talk(X) :-
+        i_am_at(Place),
+        npc(X),
         at(X, Place),
         dialog(X),
         nl, !.
-
 	talk(_) :-
         write('Duh aku kebanyakan berpetualang, jadi ngomong sama hantu.'),
         nl.
@@ -1177,7 +1183,8 @@
 		write('Suatu hari, sang ayah bertanya, "Hari ini aku harus mengenakan pakaian apa?"'),nl,
 		write('Di saat yang sama, sang anak juga bertanya, "Dimanakah aku harus meletakkan makanan ini?"'),nl,
 		write('Sang ibu bisa menjawab pertanyaan tersebut dengan hanya sekali jawab.'),nl,
-		write('Kira-kira apa jawaban sang ibu?'),!.
+		write('Kira-kira apa jawaban sang ibu?'),nl,
+		write('Gunakan perintah answer(sopir) untuk menjawab.'),!.
 		
 	clue(tukangkebun) :-
 		write('Aku kesulitan berhitung, keponakanku punya satu pertanyaan yang tidak bisa aku jawab...'),nl,
@@ -1192,14 +1199,16 @@
 		write('lagi, dia memutuskan untuk menutup jendela karena angin sudah mematikan cukup banyak lilin.'),nl,
 		write('Akhirnya dia pun makan malam dengan kekasihnya. Karena mengantuk, dia tidak lagi mematikan lilin'),nl,
 		write('dan tidak juga membereskan kamar, dan langsung memutuskan untuk pergi tidur.'),nl,
-		write('Berapakah jumlah lilin yang tersisa pada akhirnya?'),nl,!.
+		write('Berapakah jumlah lilin yang tersisa pada akhirnya?'),nl,
+		write('Gunakan perintah answer(tukangkebun) untuk menjawab.'),!.
 		
 	clue(depositbox) :-
 		write('Jawaban dari teka-teki ini adalah password dari depositbox di bank ini.'),nl,
 		write('It is greater than God and more evil than the devil.'),nl,
 		write('Rich people need it, but poor people have it.'),nl,
 		write('If you eat it, you will die, what is it?'),nl,
-		write('Jawabannya pasti dalam Bahasa Inggris.'),nl,!.
+		write('Jawabannya pasti dalam Bahasa Inggris.'),nl,
+		write('Gunakan perintah answer(depositbox) untuk menjawab.'),!.
 		
 	clue(diary) :-
 		player(X),
@@ -1214,7 +1223,7 @@
 		write('Soalnya itu bola tenis hadiah dari '),write(X),write(' karena aku pernah menang lomba main tenis dulu.'),nl,
 		write('Apalagi kalau inget itu sempet jadi hadiah anniversary jadian kita yang ke-3 taun (?)'),nl,
 		write('Yaaaa, tapi yang penting aku masih bisa sama Blacky dan '),write(X),write(' udah seneng banget kok :D'),nl,
-		write('OVERALL, THANK GOD, HARI INI AKU SENENGG :D, semoga ada hari lain lagi deh ya kayak hari ini.'),nl.
+		write('OVERALL, THANK GOD, HARI INI AKU SENENGG :D, semoga ada hari lain lagi deh ya kayak hari ini.'),nl,!.
 		
 	clue(_).
 

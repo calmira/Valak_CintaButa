@@ -313,7 +313,12 @@
 		i_am_at(kamar_eka),
 		clue(diary).
 	use(mobil) :-
-		write('Supir : HEH! MAU DIBAWA KE MANA MOBIL MAJIKAN SAYA??'), nl.
+		i_am_at(gerbang),
+		write('Supir : HEH! MAU DIBAWA KE MANA MOBIL MAJIKAN SAYA??'), nl,
+		retract(reputasi(X)),
+		Y is X-1,
+		assertz(reputasi(Y)),!
+		.
 
 	use(kloset) :-
 		write('Fyuh leganya...'), nl.
@@ -352,6 +357,13 @@
 	
 	
 /* These rules describe how to pick up an object. */
+	take(bunga) :-
+		i_am_at(kebun),
+		write('Tukang Kebun : Heh! Jangan merusak kebunku.'), nl,
+		retract(reputasi(X)),
+		Y is X-1,
+		assertz(reputasi(Y)),!.
+		
 	take(X) :-
         at(X, in_hand),
         write(X), write(' sudah kupegang.'),

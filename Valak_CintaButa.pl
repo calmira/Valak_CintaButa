@@ -516,11 +516,7 @@
 		retract(at(parcel,in_hand)),
 		write('Tetangga : Wah, terima kasih banyak yaa...'),nl,
 		write('Ini uang untukmu, sebesar 20000'),nl,
-		sidequest(boss,D),
-		E is D-1,
-		retract(sidequest(boss,D)),
-		assertz(sidequest(boss,E)),
-		completesidequest(kerja,10,20000),!.
+		completesidequest(boss,kerja,10,20000),!.
 		
 	give(bunga,penyiram_tanaman_air) :-
 		i_am_at(kebun),

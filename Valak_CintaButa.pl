@@ -944,16 +944,18 @@
 
 	talk(X) :-
         i_am_at(Place),
-        npc(X),\+answered(X),
+        npc(X), notanswered(X),
 		clue(X), nl,
         at(X, Place),
         nl, !.
+         
 	talk(X) :-
         i_am_at(Place),
         npc(X),
         at(X, Place),
         dialog(X),
         nl, !.
+
 	talk(_) :-
         write('Duh aku kebanyakan berpetualang, jadi ngomong sama hantu.'),
         nl.

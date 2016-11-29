@@ -231,7 +231,6 @@
 	ringan(bola_tenis).
 	ringan(makanan).
 	ringan(kunci_diary).
-	ringan(bunga).
 	ringan(makanan_ikan).
 	ringan(penerjemah).
 	ringan(air).
@@ -369,17 +368,6 @@
         at(X, in_hand),
         write(X), write(' sudah kupegang.'),
         nl,!.
-
-	take(X) :-
-        i_am_at(Place),
-        object(X),
-        ringan(X),
-		\+at(X,minimarket),
-		at(X, Place),
-        retract(at(X, Place)),
-        assertz(at(X, in_hand)),
-        write('OK. Aku mengambil '), write(X), write('.'),
-        nl, !.
 		
 	take(laptop) :-
 		i_am_at(X),
@@ -402,6 +390,17 @@
         \+ringan(X),
 		at(X, Place),
         write('Aduh berat banget, gak kuat. Perlu nge-gym lagi.'),nl,!.
+		
+	take(X) :-
+        i_am_at(Place),
+        object(X),
+        ringan(X),
+		\+at(X,minimarket),
+		at(X, Place),
+        retract(at(X, Place)),
+        assertz(at(X, in_hand)),
+        write('OK. Aku mengambil '), write(X), write('.'),
+        nl, !.
 		
 	take(X) :-
 		i_am_at(minimarket),
@@ -541,7 +540,8 @@
 		write('Tukang kebun : Anak muda! Kau sangat baik. Terima kasih ya'), nl,
 		write('Tukang kebun : Ini kuberi 2000 untuk jajan.'), nl,nl,
 		retract(at(penyiram_tanaman_air,in_hand)),
-		completesidequest(tukangkebun,siram_bunga,4,2000),!.
+		completesidequest(tukangkebun,siram_bunga,4,2000),
+		write('Sidequest Siram Bunga selesai!'),nl,!.
 		
 	give(bunga,penyiram_tanaman) :-
 		i_am_at(kebun),
@@ -783,7 +783,7 @@
 		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)),
-		write('Completed Sidequest : '),
+		write('Completed Sidequest : '), nl,
 		forall(completed(X),(write('   > '),write(X),nl)).
 		
 	gagal :-
@@ -791,7 +791,7 @@
 		quit,
 		retract(quitgame(false)),
 		assertz(quitgame(true)),
-		write('Completed Sidequest : '),
+		write('Completed Sidequest : '), nl,
 		forall(completed(X),(write('   > '),write(X),nl)).
 		
 	resetitem :-
@@ -852,8 +852,6 @@
 	do(stat) :- stat,!.
 	do(talk(X)):- talk(X),!.
 	do(askmoney(X)):- askmoney(X),!.
-	
-	/*do(give(X,Y):-give(X,Y),!.*/
 	do(examine(X)):- examine(X),!.	
 	do(look) :- look,!.
 	do(instructions) :- instructions,!.
@@ -1096,6 +1094,10 @@
 	dialog(teller) :-
 		write('Teller : Selamat Pagi.'),nl.
 	dialog(tukangkebun) :-
+		completed(siram_bunga),
+		write('Tukang Kebun : Lihat kebunku, penuh dengan bunga...'),nl,!.
+	dialog(tukangkebun) :-
+		notanswered(tukangkebun),
 		sidequest(tukangkebun,0),
 		clue(tukangkebun),nl,!.
 	dialog(tukangkebun) :-
@@ -1139,7 +1141,10 @@
 	dialog(anjing) :- 
 		write('Anjing : Woof woof...(gak waras ngomong sama guguk)'),nl.
 	dialog(sopir) :-
+		notanswered(sopir),
 		clue(sopir),nl,!.
+	dialog(sopir) :-
+		write('Sopir : Kapan ya aku bisa menjadi sopir pesawat...'),nl,!.
 
 /* Rules untuk examine */
     examine(kunci_motor) :- 
@@ -1238,10 +1243,6 @@
 		at(bunga,Place),
 		write('Bunga-bunga yang cantik, dibesarkan seperti anak sendiri.'),nl.
 	
-	examine(bunga) :-
-		at(bunga, in_hand),
-		write('Setangkai bunga untuk mencerahkan hati orang yang spesial.'),nl.
-	
 	examine(makanan_ikan) :-
 		i_am_at(kolam),
 		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl,!.
@@ -1300,8 +1301,11 @@
 	
 	examine(depositbox) :-
 		i_am_at(bank),
+		notanswered(depositbox),
 		clue(depositbox),!.
-	
+	examine(depositbox) :-
+		i_am_at(bank),
+		write('Deposit box untuk menyimpan barang berharga tinggi.'),nl,!.
 	examine(lemari) :-
 		i_am_at(kamar_eka),
 		write('Lemari ini hanya berisi baju-baju Eka.'), nl,!.
@@ -1337,11 +1341,15 @@
 		write('Benda ini sepertinya dapat berguna untuk mengartikan perkataan-perkataan yang aneh.'), nl.
 
 	examine(penerjemah) :-
-		in_hand(penerjemah),
+		at(penerjemah,Place),
+		i_am_at(Place),
+		write('Benda ini sepertinya dapat berguna untuk mengartikan perkataan-perkataan yang aneh.'), nl.
+	examine(penerjema) :-
+		at(penerjemah,in_hand),
 		write('Benda ini sepertinya dapat berguna untuk mengartikan perkataan-perkataan yang aneh.'), nl.
 
 	examine(kompor) :-
-		i_am_at(kompor),
+		i_am_at(dapur),
 		write('Memasak di sini tentu akan menyenangkan.'), nl.
 
 	examine(tempat_tidur) :-

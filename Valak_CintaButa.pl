@@ -11,6 +11,7 @@
 :- dynamic(bangun/1).
 :- dynamic(sidequest/2).
 :- dynamic(completed/1).
+:- dynamic(active/1).
 :- dynamic(saldo_habis/0).
 :- dynamic(active/1).
 
@@ -171,18 +172,19 @@
 	npc(sopir).
 	
 /* Sidequest */
-	completesidequest(A,B,C) :-
+	completesidequest(Z,A,B,C) :-
 		assertz(completed(A)),
 		retract(reputasi(H)),
 		I is H+B,
 		assertz(reputasi(I)),
-		retract(sidequest(mama_eka,D)),
+		retract(sidequest(Z,D)),
 		E is D-1,
-		assertz(sidequest(mama_eka,E)),
+		assertz(sidequest(Z,E)),
+		duit(F),
 		retract(duit(F)),
 		G is F+C,
-		assertz(duit(G)).
-	
+		assertz(duit(G)),
+		retract(active(A)).
 		
 /* Objects */		
 	object(kunci_motor).
@@ -261,7 +263,7 @@
 		i_am_at(dapur),
 		sidequest(mama_eka,1),
 		at(bahan_makanan,in_hand),
-		completesidequest(bantu_mama,3,5000),
+		completesidequest(mama_eka,bantu_mama,3,5000),
 		retract(at(bahan_makanan,in_hand)),
 		write('Mama Eka : Kamu benar-benar calon mantu yang baik ya!'), nl,
 		write('Mama Eka : Sebagai rasa terima kasih, nih tante kasih 5000'),nl,nl,
@@ -348,7 +350,7 @@
 	take(X) :-
         at(X, in_hand),
         write(X), write(' sudah kupegang.'),
-        nl.
+        nl,!.
 
 	take(X) :-
         i_am_at(Place),
@@ -367,16 +369,21 @@
 		write('Ah.. tasku tidak muat kalau harus bawa laptop.'), nl,
 		!.
 	take(air) :-
-		i_am_at(X),
-		at(laptop,X),
+		\+at(penyiram_tanaman,in_hand),
+		i_am_at(toilet),
 		write('Aduh basah. Gak usah deh.'), nl,
 		!.
+	take(air) :-
+		i_am_at(toilet),
+		write('Oke.. Sekarang penyiram tanamannya sudah penuh'), nl,
+		retract(at(penyiram_tanaman,in_hand)),
+		assertz(at(penyiram_tanaman_air,in_hand)),!.
 	take(X) :-
         i_am_at(Place),
         object(X),
         \+ringan(X),
 		at(X, Place),
-        write('Aduh berat banget, gak kuat. Perlu nge-gym lagi.'),nl.
+        write('Aduh berat banget, gak kuat. Perlu nge-gym lagi.'),nl,!.
 		
 	take(X) :-
 		i_am_at(minimarket),
@@ -386,7 +393,7 @@
 		Z is Y-1,
 		retract(reputasi(Y)),
 		assertz(reputasi(Z)),
-		write('Kasir : Heh ! Jangan mencuri yaa !'),nl.
+		write('Kasir : Heh ! Jangan mencuri yaa !'),nl,!.
 	
 	take(X) :-
 		i_am_at(restaurant),
@@ -396,17 +403,17 @@
 		Z is Y-1,
 		retract(reputasi(Y)),
 		assertz(reputasi(Z)),
-		write('Boss : Waduh ambil-ambil makanan dari restoran saya yaa...'),nl.
+		write('Boss : Waduh ambil-ambil makanan dari restoran saya yaa...'),nl,!.
 	
 	take(X) :-
 		npc(X),
 		i_am_at(Place),
 		at(X,Place),
-		write('Aku tidak bisa mengantongi makhluk hidup.'),nl.
+		write('Aku tidak bisa mengantongi makhluk hidup.'),nl,!.
 	
 	take(_) :-
         write('Aku tidak melihat itu di sini.'),
-        nl.
+        nl,!.
 	
 	buy(Item) :-
 		at(Item,minimarket),
@@ -486,9 +493,10 @@
 		at(pengemis,X),
 		at(makanan,in_hand),
 		sidequest(pengemis,1),
-		completesidequest(sedekah,2,0),
+		completesidequest(pengemis,sedekah,2,100),
 		retract(at(makanan,in_hand)),
-		write('Pengemis : Wah.. Adek baik sekali.. Terima kasih ya..'), nl,nl,
+		write('Pengemis : Wah.. Adek baik sekali.. Terima kasih ya..'), nl,
+		write('Pengemis : Maaf ya saya hanya bisa membalas dengan 100 rupiah.'),nl,nl,
 		write('Sidequest Sedekah selesai!'), nl,!.
 		
 	give(mama_eka,obat_tidur) :-
@@ -497,7 +505,29 @@
 		retract(at(obat_tidur,in_hand)),
 		write('Mama Eka : Wah, kamu tahu saja saya tidak bisa tidur dari kemarin.. Terima kasih obat tidurnya.'),nl,
 		write('Mama Eka pun tertidur karena meminum obat tidur yang kamu berikan'), nl,
-		retract(bangun(mama_eka)), !.
+		retract(bangun(mama_eka)),fail,!.
+		
+	give(tetangga,parcel) :-
+		\+completed(kerja),
+		i_am_at(banda),
+		at(parcel,in_hand),
+		retract(at(parcel,in_hand)),
+		write('Tetangga : Wah, terima kasih banyak yaa...'),nl,
+		write('Ini uang untukmu, sebesar 20000'),nl,nl,
+		write('Sidequest Kerja selesai!'),nl,
+		completesidequest(boss,kerja,10,20000),!.
+		
+	give(bunga,penyiram_tanaman_air) :-
+		i_am_at(kebun),
+		at(penyiram_tanaman_air,in_hand),
+		write('Tukang kebun : Anak muda! Kau sangat baik. Terima kasih ya'), nl,
+		write('Tukang kebun : Ini kuberi 2000 untuk jajan.'), nl,nl,
+		completesidequest(tukangkebun,siram_bunga,4,2000),!.
+		
+	give(bunga,penyiram_tanaman) :-
+		i_am_at(kebun),
+		at(penyiram_tanaman,in_hand),
+		write('Aku ngapain sih.. orang masi kosong'),nl,!.
 		
 	give(Person,Something) :-
 		i_am_at(Place),
@@ -523,7 +553,9 @@
 	give(anjing,Something) :-
 		i_am_at(gerbang),
 		write('Anjing : Woof woof !'),nl,!.
-		
+	give(ikan,makanan_ikan) :-
+		i_am_at(kolam),
+		at(makanan_ikan,in_hand).
 	give(ikan,Something) :-
 		i_am_at(kolam),
 		write('Ikan : Blubub blubub blubub'),nl,!.
@@ -578,11 +610,11 @@
 
 /* stat */
 	stat :-
-		write('Duit : '), X = Y, duit(Y), write(X), nl,
-		write('Reputasi : '), P = Q, reputasi(Q), write(P), nl,
+		write('Duit : '), duit(X), write(X), nl,
+		write('Reputasi : '), reputasi(P), write(P), nl,
 		write('Inventaris-ku : '), nl,	notice_objects_at(in_hand),
-		write('Completed sidequest : '),nl,
-		forall(completed(A),(write(A),nl)),
+		write('Sidequest : '),nl,
+		forall(active(A),(write(A),nl)),
 		!.
 /* Instructions */
 	instructions :-
@@ -977,13 +1009,25 @@
 	askmoney(anjing) :-
 		i_am_at(gerbang),
 		write('Aku sepertinya sudah gila karena cinta.'), nl, !.
+
+	askmoney(boss) :-
+		\+completed(kerja),
+		assertz(sidequest(boss,1)),
+		assertz(active(kerja)),
+		i_am_at(restaurant),
+		assertz(at(parcel,in_hand)),
+		write('Boss : Wah kamu tidak boleh minta-minta uang dengan cara seperti ini, bagaimana jika kamu membantu saya mengirim parcel ?'),nl,nl,
+		write('Sidequest Kerja : Ayo bekerja untuk boss restaurant, kirim parcel yang sudah ada di tanganmu ke tetangga di Jalan Banda.'),nl,!.
+>>>>>>> 64940e5199e3c92c6df390355eb38d716ec34889
 		
 	askmoney(X) :-
         i_am_at(Place),
         npc(X),
         at(X, Place),
+		reputasi(R),
+		@>(R,0),
 		retract(reputasi(R)),
-		R>0,
+		duit(Y),
 		retract(duit(Y)),
 		Z is (Y+100*R),
 		S is (R-1),
@@ -998,6 +1042,10 @@
         npc(X),
         at(X, Place),
 		write(X), write(' : Aku tidak akan memberikan sepeser pun ke orang sepertimu.'),
+		reputasi(A),
+		retract(reputasi(A)),
+		B is A-1,
+		assertz(reputasi(-1)),
 		nl, !.
 	
 	askmoney(X) :-
@@ -1017,8 +1065,16 @@
 	dialog(teller) :-
 		write('Teller : Selamat Pagi.'),nl.
 	dialog(tukangkebun) :-
-		write('Tukang Kebun : Lihat kebun ku, penuh dengan bunga...'),nl,
-		write('Setiap hari, kusiram semua... Mawar, melati, semuanya indah!'),nl.
+		sidequest(tukangkebun,0),
+		clue(tukangkebun),nl,!.
+	dialog(tukangkebun) :-
+		assertz(sidequest(tukangkebun,1)),
+		assertz(active(siram_bunga)),
+		write('Tukang kebun : Duh bunganya sudah semakin layu.'), nl,
+		write('Aku : Hmm..'),nl,nl,
+		write('Eh ada penyiram tanaman. Ambil ah'), nl,
+		assertz(at(penyiram_tanaman,in_hand)),
+		write('Sidequest Siram Bunga : Bantulah tukang kebun menyiram bunga.'),nl,!.
 	dialog(boss) :-
 		write('Boss : Apa? Kamu mau kerja disini? Hahaha...'),nl,
 		write('Kamu mulai hari ini. Buruan! Time is money. '),nl.
@@ -1027,6 +1083,7 @@
 		write('Mama Eka : Hai nak, kamu lagi mencari Eka?'),nl.
 	dialog(mama_eka) :-
 		assertz(sidequest(mama_eka,1)),
+		assertz(active(bantu_mama)),
 		write('Mama Eka : Eeh apa kabar? Tante lagi masak nih..'),nl,
 		write('Aku : Waah kelihatannya enak. Boleh kubantu Tan?'), nl,
 		write('Mama Eka : Okee ini resepnya. Bahan makanan ada di kulkas.'),nl,nl,
@@ -1041,6 +1098,7 @@
 		write('Pengemis : Hari yang cerah ya Dek..').
 	dialog(pengemis) :-
 		assertz(sidequest(pengemis,1)),
+		assertz(active(sedekah)),
 		write('Pengemis : Dek... Kasihan, dek... Belum makan tiga hari...'),nl,
 		write('Duh kasihan sekali kakek ini.. Aku harus memberikan sesuatu.'),nl,nl,
 		write('Sidequest Sedekah : Berikan makanan pada pengemis.'),nl,!.
@@ -1051,7 +1109,7 @@
 	dialog(anjing) :- 
 		write('Anjing : Woof woof...(gak waras ngomong sama guguk)'),nl.
 	dialog(sopir) :-
-		write('Sopir : Kapan ya saya bisa jadi sopir pesawat...'),nl.
+		clue(sopir),nl,!.
 
 /* Rules untuk examine */
     examine(kunci_motor) :- 
@@ -1059,13 +1117,13 @@
 		at(kunci_motor, Place),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
 		write('dan masukkan perintah ride ketika sedang seruangan dengan'), nl,
-		write('motor.'),nl.
+		write('motor.'),nl,!.
 	
 	examine(kunci_motor) :- 
 		at(kunci_motor,in_hand),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
 		write('dan masukkan perintah ride ketika sedang seruangan dengan'),nl,
-		write('motor.'),nl.
+		write('motor.'),nl,!.
 		
 	examine(sabun):-
 		i_am_at(minimarket),
@@ -1073,7 +1131,7 @@
 	
 	examine(sabun):-
 		at(sabun, in_hand),
-		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl.
+		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl,!.
 	
 	examine(sabun):-
 		i_am_at(Place),
@@ -1086,7 +1144,7 @@
 		
 	examine(obat_tidur):-
 		at(obat_tidur, in_hand),
-		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl.
+		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl,!.
 	
 	examine(obat_tidur):-
 		i_am_at(Place),
@@ -1099,7 +1157,7 @@
 	
 	examine(raket):-
 		at(raket, in_hand),
-		write('Raket yenox berkualitas tinggi.'), nl.
+		write('Raket yenox berkualitas tinggi.'), nl,!.
 	
 	examine(raket):-
 		i_am_at(Place),
@@ -1112,7 +1170,7 @@
 	
 	examine(bola_tenis):-
 		at(bola_tenis, in_hand),
-		write('Mainan favorit para anjing.'), nl.
+		write('Mainan favorit para anjing.'), nl,!.
 	
 	examine(bola_tenis):-
 		i_am_at(Place),
@@ -1156,19 +1214,19 @@
 	
 	examine(makanan_ikan) :-
 		i_am_at(kolam),
-		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
+		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl,!.
 		
 	examine(makanan_ikan) :-
 		at(makanan,in_hand),
-		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl.
+		write('Terbuat dari daging pilihan dengan 10 bumbu rahasia.'),nl,!.
 	
 	examine(kloset) :-
 		i_am_at(toilet),
-		write('Wah klosetnya mulus... semulus kulit Eka.'),nl.
+		write('Wah klosetnya mulus... semulus kulit Eka.'),nl,!.
 		
 	examine(air) :- 
 		i_am_at(toilet),
-		write('Pompa air sumitshi, air mengalir sampai jauh...'),nl.
+		write('Pompa air sumitshi, air mengalir sampai jauh...'),nl,!.
 	
 	examine(atm) :-
 		i_am_at(bank),
@@ -1177,15 +1235,24 @@
 		
 	examine(mobil) :-
 		i_am_at(gerbang),
-		write('Sepertinya aku harus mencoba menyetir mobil ini..'),nl.
+		write('Sepertinya aku harus mencoba menyetir mobil ini..'),nl,!.
 		
 	examine(lemari_bekas) :-
 		i_am_at(gudang),
-		write('Hiii seramnya...'),nl.
+		write('Hiii seramnya...'),nl,!.
 	
 	examine(laci_bekas) :-
+		sidequest(laci_bekas,0),
 		i_am_at(gudang),
-		write('Laci ini sudah lapuk dimakan rayap.'),nl.
+		write('Laci ini sudah lapuk dimakan rayap.'),nl,!.
+	examine(laci_bekas) :-
+		assertz(sidequest(laci_bekas,1)),
+		i_am_at(gudang),
+		gambar(foto_eka),nl,
+		write('Aku : Wah ada foto Eka. Disini dia manis sekali <3'),nl,
+		write('Aku : Lumayan juga ada gopek disini'),nl,nl,
+		completesidequest(laci_bekas,foto_eka,1,500),
+		write('Sidequest Foto Eka selesai!'),nl,!.
 	
 	examine(motor) :-
 		at(motor,Place),
@@ -1193,20 +1260,20 @@
 		write('Motor bebek kesayangan pemberian orang tua.'),nl,
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
 		write('dan masukkan perintah ride ketika sedang seruangan dengan'),nl,
-		write('motor.'),nl.
+		write('motor.'),nl,!.
 
 	examine(motor) :-
 		at(motor, in_hand),
 		write('Setelah berkendara, motor bebek kesayanganku ini menjadi kotor.'), nl,
-		write('Cara berhenti menggunakan motor, dengan perintah drop(motor).'),nl.
+		write('Cara berhenti menggunakan motor, dengan perintah drop(motor).'),nl,!.
 	
 	examine(depositbox) :-
 		i_am_at(bank),
-		clue(depositbox).
+		clue(depositbox),!.
 	
 	examine(lemari) :-
 		i_am_at(kamar_eka),
-		write('Lemari ini hanya berisi baju-baju Eka.'), nl.
+		write('Lemari ini hanya berisi baju-baju Eka.'), nl,!.
 	
 	examine(kursi):-
 		i_am_at(loteng),

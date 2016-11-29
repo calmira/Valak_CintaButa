@@ -161,6 +161,17 @@
 	npc(sopir).
 	
 /* Sidequest */
+	completesidequest(A,B,C) :-
+		assertz(completed(A)),
+		retract(reputasi(H)),
+		I is H+B,
+		assertz(reputasi(I)),
+		retract(sidequest(mama_eka,D)),
+		E is D-1,
+		assertz(sidequest(mama_eka,E)),
+		retract(duit(F)),
+		G is F+C,
+		assertz(duit(G)),
 	
 		
 /* Objects */		
@@ -216,15 +227,8 @@
 		i_am_at(dapur),
 		sidequest(mama_eka,1),
 		at(bahan_makanan,in_hand),
-		assertz(completed(bantu_mama)),
-		retract(reputasi(X)),
-		Y is X+3,
-		assertz(reputasi(Y)),
-		retract(sidequest(mama_eka,1)),
-		assertz(sidequest(mama_eka,0)),
-		retract(duit(A)),
-		B is A+5000,
-		assertz(duit(B)),
+		completesidequest(bantu_mama,3,5000),
+		retract(at(bahan_makanan,in_hand)),
 		write('Mama Eka : Kamu benar-benar calon mantu yang baik ya!'), nl,
 		write('Mama Eka : Sebagai rasa terima kasih, nih tante kasih 5000'),nl,nl,
 		write('Sidequest Bantu Mama selesai!'),nl,
@@ -419,13 +423,8 @@
 		at(pengemis,X),
 		at(makanan,in_hand),
 		sidequest(pengemis,1),
-		retract(sidequest(pengemis,1)),
-		assertz(sidequest(pengemis,0)),
-		assertz(completed(sedekah)),
+		completesidequest(sedekah,2,0),
 		retract(at(makanan,in_hand)),
-		retract(reputasi(Y)),
-		S is Y+2,
-		assertz(reputasi(S)),
 		write('Pengemis : Wah.. Adek baik sekali.. Terima kasih ya..'), nl,nl,
 		write('Sidequest Sedekah selesai!'), nl,!.
 		

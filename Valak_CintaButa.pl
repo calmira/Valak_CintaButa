@@ -62,16 +62,16 @@
 	path(lombok, e, gerbang) :- at(motor, in_hand).
 	path(lombok, e, gerbang) :- at(motor, gerbang).
 	path(lombok, e, gerbang):-
-		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,fail,!.
+		write('Supir: Siapa kamu? Teman-teman Eka tidak ada yang berjalan kaki.'),nl,!.
 	path(lombok, w, kos).
 	path(gerbang, n, restaurant).
 	path(gerbang, e, dapur) :- \+at(motor,in_hand).
 	path(gerbang, e, dapur) :-
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,!,fail.
 	
 	path(gerbang, s, kebun) :- 	\+at(motor,in_hand).
 	path(gerbang, s, kebun) :- 	
-		write('Supir : Motornya diparkir saja disini,dek.'),nl,fail,!.
+		write('Supir : Motornya diparkir saja disini,dek.'),nl,!,fail.
 	
 	path(gerbang, w, lombok) :- 
 		at(motor,in_hand),
@@ -147,6 +147,14 @@
     at(ikan, kolam).
     at(makanan_ikan, kolam).
     at(kunci_diary, basement).
+    at(pulsa, minimarket).
+    at(baju, minimarket).
+    at(kosmetik, minimarket).
+    at(rokok, minimarket).
+    at(makanan_ringan, minimarket).
+    at(sikat_gigi, minimarket).
+    at(sandal, minimarket).
+	at(sepatu_hak, minimarket).
 
 /* NPCs */
 	npc(ikan).
@@ -204,6 +212,14 @@
 	object(laci_bekas).
 	object(meja).
 	object(kursi).
+	object(pulsa).
+	object(baju).
+	object(kosmetik).
+	object(rokok).
+	object(makanan_ringan).
+	object(sikat_gigi).
+	object(sandal).
+	object(sepatu_hak).
 		
 	ringan(kunci_motor).
 	ringan(sabun).
@@ -216,6 +232,14 @@
 	ringan(makanan_ikan).
 	ringan(penerjemah).
 	ringan(air).
+	ringan(pulsa).
+	ringan(baju).
+	ringan(kosmetik).
+	ringan(rokok).
+	ringan(makanan_ringan).
+	ringan(sikat_gigi).
+	ringan(sandal).
+	ringan(sepatu_hak).
 	
 /* Harga barang */
 	price(sabun,2000).
@@ -223,6 +247,14 @@
 	price(raket,100000).
 	price(bola_tenis,50000).
 	price(makanan,10000).
+	price(pulsa,5000).
+	price(baju,20000).
+	price(kosmetik,100000).
+	price(rokok,10000).
+	price(makanan_ringan,3000).
+	price(sikat_gigi,4000).
+	price(sandal,8000).
+	price(sepatu_hak,90000).
 
 /********************************/
 /* Use : hanya untuk objek aktif*/
@@ -230,7 +262,7 @@
 		i_am_at(dapur),
 		sidequest(mama_eka,1),
 		at(bahan_makanan,in_hand),
-		completesidequest(bantu_mama,3,5000),
+		completesidequest(mama_eka,bantu_mama,3,5000),
 		retract(at(bahan_makanan,in_hand)),
 		write('Mama Eka : Kamu benar-benar calon mantu yang baik ya!'), nl,
 		write('Mama Eka : Sebagai rasa terima kasih, nih tante kasih 5000'),nl,nl,
@@ -396,6 +428,7 @@
 		write('Kasir : Terima kasih sudah berbelanja, sampai jumpa!'),nl,!.
 		
 	buy(Item) :-
+		object(Item),
 		at(Item,minimarket),
 		i_am_at(minimarket),
 		write('Uangnya tidak cukup.'), nl,!.
@@ -413,6 +446,7 @@
 		write('Boss : Makasih .. Makasih.. Sering-sering dateng ya!'),nl,!.
 		
 	buy(Item) :-
+		object(Item),
 		at(Item,restaurant),
 		i_am_at(restaurant),
 		write('Uangnya tidak cukup'),nl,!.
@@ -427,6 +461,14 @@
 		write('Barang ini tidak bisa dibeli.'),nl.
         
 /* These rules describe how to put down an object. */
+	drop(X) :-
+		i_am_at(minimarket),
+		write('Aku tidak mau meninggalkan barang sembarangan.'), nl, !.
+	
+	drop(X) :-
+		i_am_at(restaurant),
+		write('Aku tidak mau meninggalkan barang sembarangan.'), nl, !.
+	
 	drop(X) :-
         at(X, in_hand),
         i_am_at(Place),
@@ -450,7 +492,7 @@
 		at(pengemis,X),
 		at(makanan,in_hand),
 		sidequest(pengemis,1),
-		completesidequest(sedekah,2,100),
+		completesidequest(pengemis,sedekah,2,100),
 		retract(at(makanan,in_hand)),
 		write('Pengemis : Wah.. Adek baik sekali.. Terima kasih ya..'), nl,
 		write('Pengemis : Maaf ya saya hanya bisa membalas dengan 100 rupiah.'),nl,nl,
@@ -469,7 +511,7 @@
 		at(penyiram_tanaman_air,in_hand),
 		write('Tukang kebun : Anak muda! Kau sangat baik. Terima kasih ya'), nl,
 		write('Tukang kebun : Ini kuberi 2000 untuk jajan.'), nl,nl,
-		completesidequest(siram_bunga,4,2000),!.
+		completesidequest(tukangkebun,siram_bunga,4,2000),!.
 		
 	give(bunga,penyiram_tanaman) :-
 		i_am_at(kebun),
@@ -525,7 +567,9 @@
 		i_am_at(Place),
 		retract(at(motor,Place)),
 		assertz(at(motor,in_hand)),
-		write('Aku : Sekarang aku mengendarai motor ! BRUMMM BRUMMM'),nl,!.
+		write('Aku : Sekarang aku mengendarai motor !'), nl,
+		gambar(motorbebek),nl,
+		write('BRUMMM BRUMMM'),nl,!.
 	ride :-
 		\+at(motor,Place),
 		i_am_at(Place),
@@ -922,9 +966,15 @@
 
 	talk(X) :-
         i_am_at(Place),
+        npc(X), notanswered(X),
+		clue(X), nl,
+        at(X, Place),
+        nl, !.
+         
+	talk(X) :-
+        i_am_at(Place),
         npc(X),
         at(X, Place),
-		clue(X),
         dialog(X),
         nl, !.
 
@@ -1021,7 +1071,8 @@
 
 /* Rules untuk examine */
     examine(kunci_motor) :- 
-		i_am_at(kos),
+		i_am_at(Place),
+		at(kunci_motor, Place),
 		write('Cara menggunakannya, pastikan kunci berada di tangan,'),nl,
 		write('dan masukkan perintah ride ketika sedang seruangan dengan'), nl,
 		write('motor.'),nl,!.
@@ -1040,6 +1091,11 @@
 		at(sabun, in_hand),
 		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl,!.
 	
+	examine(sabun):-
+		i_am_at(Place),
+		at(sabun, Place),
+		write('Kira-kira Eka membutuhkan sabun tidak ya?'),nl.
+	
 	examine(obat_tidur):-
 		i_am_at(minimarket),
 		write('Obat tidur cap gajah mabok seharga 5000'), nl,!.
@@ -1047,6 +1103,11 @@
 	examine(obat_tidur):-
 		at(obat_tidur, in_hand),
 		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl,!.
+	
+	examine(obat_tidur):-
+		i_am_at(Place),
+		at(obat_tidur, Place),
+		write('Orang-orang yang menghalangiku lebih baik diberi obat ini.'), nl.
 	
 	examine(raket):-
 		i_am_at(minimarket),
@@ -1056,6 +1117,11 @@
 		at(raket, in_hand),
 		write('Raket yenox berkualitas tinggi.'), nl,!.
 	
+	examine(raket):-
+		i_am_at(Place),
+		at(raket, Place),
+		write('Raket yenox berkualitas tinggi.'), nl.
+	
 	examine(bola_tenis):-
 		i_am_at(minimarket),
 		write('Bola tenis ini seharga 50000.'), nl,!.
@@ -1064,13 +1130,23 @@
 		at(bola_tenis, in_hand),
 		write('Mainan favorit para anjing.'), nl,!.
 	
+	examine(bola_tenis):-
+		i_am_at(Place),
+		at(bola_tenis, Place),
+		write('Mainan favorit para anjing.'), nl.
+	
 	examine(kunci_diary):-
 		i_am_at(basement),
 		write('Kunci apa ya ini? Tampak baru dan mengkilap.'), nl,!.
 	
 	examine(kunci_diary):-
 		at(kunci_diary, in_hand),
-		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl,!.
+		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl.
+	
+	examine(kunci_diary):-
+		i_am_at(Place),
+		at(kunci_diary, Place),
+		write('Kunci ini sepertinya akan memberikanku petunjuk.'), nl.
 		
 	examine(makanan):-
 		i_am_at(restaurant),
@@ -1078,15 +1154,21 @@
 		
 	examine(makanan):-
 		at(makanan,in_hand),
-		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl,!.
+		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl.
+	
+	examine(makanan):-
+		i_am_at(Place),
+		at(makanan,Place),
+		write('Makanan yang sangat pedas sampai membuat sakit perut.'),nl.
 		
 	examine(bunga) :-
-		i_am_at(kebun),
-		write('Bunga-bunga yang cantik, dibesarkan seperti anak sendiri.'),nl,!.
+		i_am_at(Place),
+		at(bunga,Place),
+		write('Bunga-bunga yang cantik, dibesarkan seperti anak sendiri.'),nl.
 	
 	examine(bunga) :-
-		i_am_at(kebun),
-		write('Setangkai bunga untuk mencerahkan hati orang yang spesial.'),nl,!.
+		at(bunga, in_hand),
+		write('Setangkai bunga untuk mencerahkan hati orang yang spesial.'),nl.
 	
 	examine(makanan_ikan) :-
 		i_am_at(kolam),
@@ -1127,7 +1209,7 @@
 		gambar(foto_eka),nl,
 		write('Aku : Wah ada foto Eka. Disini dia manis sekali <3'),nl,
 		write('Aku : Lumayan juga ada gopek disini'),nl,nl,
-		completesidequest(foto_eka,1,500),
+		completesidequest(laci_bekas,foto_eka,1,500),
 		write('Sidequest Foto Eka selesai!'),nl,!.
 	
 	examine(motor) :-
@@ -1192,7 +1274,95 @@
 	examine(tempat_tidur) :-
 		i_am_at(kamar_eka),
 		write('Empuk dan nyaman sekali kasur ini. Berbeda jauh dengan kasur kosanku.'), nl.
+		
+	examine(pulsa):-
+		i_am_at(minimarket),
+		write('Pulsa berbagai operator seharga 5000.'), nl,!.
+	examine(pulsa):-
+		i_am_at(Place),
+		at(pulsa, Place),
+		write('Akhirnya aku bisa mengisi pulsa.'), nl.
+	examine(pulsa):-
+		at(pulsa, in_hand),
+		write('Akhirnya aku bisa mengisi pulsa.'), nl.
+		
+	examine(baju):-
+		i_am_at(minimarket),
+		write('Baju diskon seharga 20000.'), nl,!.
+	examine(baju):-
+		i_am_at(Place),
+		at(baju, Place),
+		write('Baju ini bagus dan bisa dipakai oleh pria maupun wanita.'), nl.
+	examine(baju):-
+		at(baju, in_hand),
+		write('Baju ini bagus dan bisa dipakai oleh pria maupun wanita.'), nl.
 	
+	examine(kosmetik):-
+		i_am_at(minimarket),
+		write('Kosmetik KW super seharga 100000.'), nl,!.
+	examine(kosmetik):-
+		i_am_at(Place),
+		at(kosmetik, Place),
+		write('Walaupun kosmetik KW namun kelihatan seperi asli'), nl.
+	examine(kosmetik):-
+		at(kosmetik, in_hand),
+		write('Walaupun kosmetik KW namun kelihatan seperi asli'), nl.
+		
+	examine(rokok):-
+		i_am_at(minimarket),
+		write('Rokok Dbenang seharga 10000.'), nl,!.
+	examine(rokok):-
+		i_am_at(Place),
+		at(rokok, Place),
+		write('Sebaiknya aku tidak merokok karena tidak baik untuk kesehatan.'), nl.
+	examine(rokok):-
+		at(rokok, in_hand),
+		write('Sebaiknya aku tidak merokok karena tidak baik untuk kesehatan.'), nl.
+	
+	examine(makanan_ringan):-
+		i_am_at(minimarket),
+		write('Makanan ringan seharga 3000.'), nl,!.
+	examine(makanan_ringan):-
+		i_am_at(Place),
+		at(makanan_ringan, Place),
+		write('Makanan ringan ini enak.'), nl.
+	examine(makanan_ringan):-
+		at(makanan_ringan, in_hand),
+		write('Makanan ringan ini enak.'), nl.
+	
+	examine(sikat_gigi):-
+		i_am_at(minimarket),
+		write('Sikat gigi seharga 4000.'), nl, !.
+	examine(sikat_gigi):-
+		i_am_at(Place),
+		at(sikat_gigi, Place),
+		write('Sikat gigi baru bisa kugunakan sehari-hari.'), nl.
+	examine(sikat_gigi):-
+		at(sikat_gigi, in_hand),
+		write('Sikat gigi baru bisa kugunakan sehari-hari.'), nl.
+		
+	examine(sandal):-
+		i_am_at(minimarket),
+		write('Sandal seharga 8000.'), nl, !.
+	examine(sandal):-
+		i_am_at(Place),
+		at(sandal, Place),
+		write('Walaupun harganya murah, sandal ini tampak bagus dan awet.'), nl.
+	examine(sandal):-
+		at(sandal, in_hand),
+		write('Walaupun harganya murah, sandal ini tampak bagus dan awet.'), nl.
+		
+	examine(sepatu_hak):-
+		i_am_at(minimarket),
+		write('Sepatu hak 20 cm seharga 90000'), nl,!.
+	examine(sepatu_hak):-
+		i_am_at(Place),
+		at(sepatu_hak, Place),
+		write('Semua wanita pasti menyukai sepatu hak ini.'), nl.
+	examine(sepatu_hak):-
+		at(sepatu_hak, in_hand),
+		write('Semua wanita pasti menyukai sepatu hak ini.'), nl.
+		
 	examine(X):-
 			npc(X),
 			i_am_at(Place),
@@ -1213,6 +1383,7 @@
 		
 		
 	tunggu :-
+		gambar(game_over2),
 		write('Aku memutuskan menunggu kepulangan Eka setelah semua ini.'), nl,
 		write('Namun ternyata aku gagal memberikan yang terbaik.'), nl,
 		gagal.
@@ -1224,7 +1395,8 @@
 		write('Suatu hari, sang ayah bertanya, "Hari ini aku harus mengenakan pakaian apa?"'),nl,
 		write('Di saat yang sama, sang anak juga bertanya, "Dimanakah aku harus meletakkan makanan ini?"'),nl,
 		write('Sang ibu bisa menjawab pertanyaan tersebut dengan hanya sekali jawab.'),nl,
-		write('Kira-kira apa jawaban sang ibu?'),!.
+		write('Kira-kira apa jawaban sang ibu?'),nl,
+		write('Gunakan perintah answer(sopir) untuk menjawab.'),!.
 		
 	clue(tukangkebun) :-
 		write('Aku kesulitan berhitung, keponakanku punya satu pertanyaan yang tidak bisa aku jawab...'),nl,
@@ -1239,14 +1411,16 @@
 		write('lagi, dia memutuskan untuk menutup jendela karena angin sudah mematikan cukup banyak lilin.'),nl,
 		write('Akhirnya dia pun makan malam dengan kekasihnya. Karena mengantuk, dia tidak lagi mematikan lilin'),nl,
 		write('dan tidak juga membereskan kamar, dan langsung memutuskan untuk pergi tidur.'),nl,
-		write('Berapakah jumlah lilin yang tersisa pada akhirnya?'),nl,!.
+		write('Berapakah jumlah lilin yang tersisa pada akhirnya?'),nl,
+		write('Gunakan perintah answer(tukangkebun) untuk menjawab.'),!.
 		
 	clue(depositbox) :-
 		write('Jawaban dari teka-teki ini adalah password dari depositbox di bank ini.'),nl,
 		write('It is greater than God and more evil than the devil.'),nl,
 		write('Rich people need it, but poor people have it.'),nl,
 		write('If you eat it, you will die, what is it?'),nl,
-		write('Jawabannya pasti dalam Bahasa Inggris.'),nl,!.
+		write('Jawabannya pasti dalam Bahasa Inggris.'),nl,
+		write('Gunakan perintah answer(depositbox) untuk menjawab.'),!.
 		
 	clue(diary) :-
 		player(X),
@@ -1261,7 +1435,7 @@
 		write('Soalnya itu bola tenis hadiah dari '),write(X),write(' karena aku pernah menang lomba main tenis dulu.'),nl,
 		write('Apalagi kalau inget itu sempet jadi hadiah anniversary jadian kita yang ke-3 taun (?)'),nl,
 		write('Yaaaa, tapi yang penting aku masih bisa sama Blacky dan '),write(X),write(' udah seneng banget kok :D'),nl,
-		write('OVERALL, THANK GOD, HARI INI AKU SENENGG :D, semoga ada hari lain lagi deh ya kayak hari ini.'),nl.
+		write('OVERALL, THANK GOD, HARI INI AKU SENENGG :D, semoga ada hari lain lagi deh ya kayak hari ini.'),nl,!.
 		
 	clue(_).
 
@@ -1322,6 +1496,31 @@
 		write('  `:::::`::::::::;; /  / `:#'), nl,
 		write('   ::::::`:::::;;  /  /   `#'), nl.
 
+	gambar(game_over2):-
+		write('                   #####                          #######                      '), nl,
+		write('                  #     #   ##   #    # ######    #     # #    # ###### #####  '), nl,
+		write('                  #        #  #  ##  ## #         #     # #    # #      #    # '), nl,
+		write('                  #  #### #    # # ## # #####     #     # #    # #####  #    # '), nl,
+		write('                  #     # ###### #    # #         #     # #    # #      #####  '), nl,
+		write('                  #     # #    # #    # #         #     #  #  #  #      #   #  '), nl,
+		write('                   #####  #    # #    # ######    #######   ##   ###### #    #'), nl, nl,
+		write('                                  ('), nl,
+		write('                         .-```-..` \\                         Who the...??'), nl,
+		write('               _______ .`       -   \\                           yikes!'), nl,
+		write('             <<<<<<<< );__   ,,,_)   \\                      __ /'), nl,
+		write('                <<<<<<<<< ) ;C  /     \\                /ZZZ`  )'), nl,
+		write('                  <<<<<< (.-`-.  )====_)_=======>      .-````>>>>>>>>>>'), nl,
+		write('                    <<<<< \\    ```````   )           .`    >>>>>>>>>'), nl,
+		write('                    ;  <<<     .......__/       __\\_;    ,>>>>>>>'), nl,
+		write('               .-```         (         )          / / (`"\\__'), nl,
+		write('            .-`              ;.       /            (;/;) /\\'), nl,
+		write('           /  .-`     .     =  .     /'), nl,
+		write('       _-``\\_/         `. .`    .   /'), nl,
+		write('    .-`  )  ;\\          ```.     . /'), nl,
+		write('   ;   .````  `.       `    ;     ('), nl,
+		write('   O -`        .```       .`              '), nl,
+		write('             .`   .-``````                    '), nl,
+		write('             `o-`                         '), nl.
 	
 	gambar(love):-
 		write('                        OOOOO          OOOOO'), nl,
@@ -1378,3 +1577,19 @@
 		write(': | <-------------------------------------------------------> | :'), nl,
 		write(': + - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - / | \\ - + :'), nl,
 		write('-----------------------------------------------------------------'), nl.
+	
+	gambar(motorbebek):-
+		write('                                     ,-~ |'), nl,
+		write('        ________________          o==]___|'), nl,
+		write('       |                |            \\ \\'), nl,
+		write('       |________________|            /\\ \\'), nl,
+		write('  __  /  _,-----._      )           |  \\ \\.'), nl,
+		write(' |_||/_-~         `.   /()          |  /|]_|_____'), nl,
+		write('   |//              \\ |              \\/ /_-~     ~-_'), nl,
+		write('   //________________||              / //___________\\'), nl,
+		write('  //__|______________| \\____________/ //___/-\\ \\~-_'), nl,
+		write(' ((_________________/_-o___________/_//___/  /\\,\\  \\'), nl,
+		write('  |__/(  ((====)o===--~~                 (  ( (o/)  )'), nl,
+		write('       \\  ``==` /                         \\  `--`  /'), nl,
+		write('        `-.__,-`                           `-.__,-`'), nl.
+

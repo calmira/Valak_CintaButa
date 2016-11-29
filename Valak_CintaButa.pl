@@ -86,6 +86,7 @@
 	path(dapur, e, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(dapur, e, kamar_ortu):-
+
 		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl,fail,!.
 	path(dapur, s, toilet).
 	path(dapur, w, gerbang).
@@ -100,7 +101,7 @@
 	path(kamar_eka, n, kamar_ortu):-
 		\+bangun(mama_eka).
 	path(kamar_eka, n, kamar_ortu):-
-		write('Mama Eka: Apa yang akan kamu lakukan? Keluar dari situ!'), nl,fail, !.
+		write('Mama Eka: Apa yang kamu lakukan? Keluar dari situ!'), nl,fail, !.
 	path(kolam, n, kebun).
 	path(kamar_eka, d, basement).
 	path(basement, u, kamar_eka).
@@ -291,6 +292,12 @@
 	
 	use(kunci_motor):-
 		examine(kunci_motor).
+		
+	use(X) :-
+		npc(X),
+		i_am_at(Place),
+		at(X,Place),
+		write('Memanfaatkan orang lain itu dosa'),nl.
 	use(_) :-
 		write('Barang tersebut tidak bisa digunakan.'), nl.
 	
@@ -317,7 +324,11 @@
 		at(laptop,X),
 		write('Ah.. tasku tidak muat kalau harus bawa laptop.'), nl,
 		!.
-	
+	take(air) :-
+		i_am_at(X),
+		at(laptop,X),
+		write('Aduh basah. Gak usah deh.'), nl,
+		!.
 	take(X) :-
         i_am_at(Place),
         object(X),
@@ -349,7 +360,7 @@
 		npc(X),
 		i_am_at(Place),
 		at(X,Place),
-		write('Aku merasa aneh, apa yang mau aku lakukan?'),nl.
+		write('Aku tidak bisa mengantongi makhluk hidup.'),nl.
 	
 	take(_) :-
         write('Aku tidak melihat itu di sini.'),
@@ -394,7 +405,7 @@
 		npc(X),
 		i_am_at(Place),
 		at(X,Place),
-		write('Aku merasa aneh, apa yang mau aku lakukan?'),nl.
+		write('Aku merasa aneh, apa yang sedang aku lakukan?'),nl.
 		
 	buy(_) :-
 		write('Barang ini tidak bisa dibeli.'),nl.
@@ -473,7 +484,7 @@
 		(quitgame(false) -> (look,!); !).
 
 	go(_) :-
-        write('Tidak ada apa-apa disana.'),nl.
+        write('Aku tidak bisa kesana.'),nl.
 		
 /* Predikat menggunakan motor */
 	ride :-
@@ -523,27 +534,27 @@
 		write('Berikut instruksi yang dapat digunakan :'),nl,
 		write('start.                        : memulai permainan'), nl,
 		write('n., s., w., e., u., d.        : pindah ke arah sesuai instruksi'), nl,
-		write('take(Object).                 : mengambil barang'), nl,
-		write('drop(Object).                 : meletakkan barang'), nl,
-		write('use(Object).                  : menggunakan barang'), nl,
-		write('stat.                         : menampilkan atribut'), nl,
-		write('talk(Npc).                    : mengajak NPC berbicara'), nl,
-		write('buy(Object).                  : membeli barang'), nl,
-		write('askmoney(Npc).                : meminta uang dari NPC'), nl,
-		write('give(Object,Npc)              : memberikan barang ke NPC'), nl,
 		write('examine(Object).              : memeriksa barang'), nl,
+		write('take(Object).                 : mengambil barang'), nl,
+		write('use(Object).                  : menggunakan barang'), nl,
+		write('buy(Object).                  : membeli barang'), nl,
+		write('drop(Object).                 : meletakkan barang'), nl,
+		write('talk(Npc).                    : mengajak NPC berbicara'), nl,
+		write('askmoney(Npc).                : meminta uang dari NPC'), nl,
+		write('give(Npc,Object)              : memberikan barang ke NPC'), nl,
 		write('ride.                         : mengendarai motor'), nl,
-		write('look.                         : melihat sekeliling'), nl,
 		write('tunggu.                       : menunggu Eka pulang dari berbelanja'), nl,
+		write('stat.                         : menampilkan atribut'), nl,
+		write('look.                         : melihat sekeliling'), nl,
 		write('instructions.                 : melihat daftar instruksi'), nl,
 		write('save(Filename).               : menyimpan progress'), nl,
-		write('load(Filename).               : memuat progress'), nl,
-		write('quit.                         : mengakhiri permainan barang'), nl.
+		write('loadfile(Filename).           : memuat progress'), nl,
+		write('quit.                         : mengakhiri permainan'), nl.
 
 /* Rules untuk Input name */
 	inputnama :-
 		gambar(judul_game), nl, nl,
-		write('Halo!! Sebelum memulai permainan, masukkan terlebih dahulu nama anda :'),
+		write('Halo!! Sebelum memulai permainan, masukkan terlebih dahulu nama anda (lowercase):'),
 		nl,
 		read(X),
 		assertz(player(X)),
@@ -1123,7 +1134,13 @@
 	examine(tempat_tidur) :-
 		i_am_at(kamar_eka),
 		write('Empuk dan nyaman sekali kasur ini. Berbeda jauh dengan kasur kosanku.'), nl.
-		
+	
+	examine(X):-
+			npc(X),
+			i_am_at(Place),
+			at(X,Place),
+			write('Tidak baik menilai seseorang dari penampilannya'),nl.
+			
     examine(_) :-
         write('Aku tidak melihat itu di sini.'),
         nl.

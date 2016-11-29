@@ -223,6 +223,9 @@
 	object(sikat_gigi).
 	object(sandal).
 	object(sepatu_hak).
+	object(penyiram_tanaman).
+	object(penyiram_tanaman_air).
+	object(bahan_makanan).
 		
 	ringan(kunci_motor).
 	ringan(sabun).
@@ -524,6 +527,7 @@
 		at(penyiram_tanaman_air,in_hand),
 		write('Tukang kebun : Anak muda! Kau sangat baik. Terima kasih ya'), nl,
 		write('Tukang kebun : Ini kuberi 2000 untuk jajan.'), nl,nl,
+		retract(at(penyiram_tanaman_air,in_hand)),
 		completesidequest(tukangkebun,siram_bunga,4,2000),!.
 		
 	give(bunga,penyiram_tanaman) :-
@@ -666,7 +670,7 @@
 		retract(i_am_at(Here)),
 		retract(duit(X)),
 		retract(reputasi(Y)),
-		forall(object(O),retract(at(O,Place))),
+		forall((object(O),at(O,Place)),retract(at(O,Place))),
 		forall(notanswered(Anything),retract(notanswered(Anything))),
 		forall(answered(Something),retract(answered(Something))),
 		forall(bangun(Person),retract(bangun(Person))),
@@ -760,7 +764,9 @@
 		write('The End.'), nl,
 		quit,
 		retract(quitgame(false)),
-		assertz(quitgame(true)).
+		assertz(quitgame(true)),
+		write('Completed Sidequest : ')
+		.
 		
 	gagal :-
 		write('Malangnya nasibku.'), nl,

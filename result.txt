@@ -1,7 +1,7 @@
 player(richard).
-i_am_at(banda).
+i_am_at(kos).
 duit(5000).
-reputasi(10).
+reputasi(0).
 at(kunci_motor,in_hand).
 at(atm,bank).
 at(depositbox,bank).
@@ -34,7 +34,4 @@ notanswered(depositbox).
 notanswered(sopir).
 notanswered(tukangkebun).
 bangun(mama_eka).
-completed(kerja).
-sidequest(boss,1).
-active(kerja).
 ('|').

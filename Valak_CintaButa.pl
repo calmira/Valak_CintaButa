@@ -13,7 +13,6 @@
 :- dynamic(completed/1).
 :- dynamic(active/1).
 :- dynamic(saldo_habis/0).
-:- dynamic(active/1).
 
 /* current state */
 	i_am_at(kos).
@@ -1005,7 +1004,11 @@
     	write('   > timur   -> N/A'), nl.
 		
 /* Rules yang mendeskripsikan talk */
-
+	talk(mama_eka) :-
+		i_am_at(dapur),
+		\+bangun(mama_eka),
+		write('Mama Eka : Zzz..'),nl,!.
+		
 	talk(X) :-
         i_am_at(Place),
         npc(X), notanswered(X),
